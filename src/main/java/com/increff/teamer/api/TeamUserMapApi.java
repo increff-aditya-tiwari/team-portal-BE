@@ -51,6 +51,9 @@ public class TeamUserMapApi {
                 }
             }
         }
+        if(userTeamMappingPojoList.isEmpty()){
+            throw new CommonApiException(HttpStatus.BAD_REQUEST,"User is Already Present in the Team");
+        }
         return userTeamMappingPojoList;
     }
 

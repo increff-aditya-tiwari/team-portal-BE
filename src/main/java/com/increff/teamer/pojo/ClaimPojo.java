@@ -5,7 +5,7 @@ import com.increff.teamer.model.constant.RequestStatus;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "claims", uniqueConstraints = @UniqueConstraint(name = "unique_claim",columnNames = {"eventId","claimStatus","addedBy"}))
+@Table(name = "claims", uniqueConstraints = @UniqueConstraint(name = "unique_claim",columnNames = {"eventId","claimId"}))
 public class ClaimPojo extends AbstractVersionedPojo{
     @Id
     @Column(nullable = false)

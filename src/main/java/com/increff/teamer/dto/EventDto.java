@@ -39,8 +39,18 @@ public class EventDto {
         return eventFlowApi.getAllOpenRequestsForEvent(eventId);
     }
 
+    public List<RequestDetailPojo> getAllOpenInvitesFromEvent(Long eventId) throws CommonApiException{
+        return eventFlowApi.getAllOpenInvitesFromEvent(eventId);
+    }
+
+
+
     public List<EventParticipantsData> getAllEventParticipants(Long eventId) throws CommonApiException{
         return eventFlowApi.getAllEventParticipants(eventId);
+    }
+
+    public EventPojo getEventByEventId(Long eventId) throws CommonApiException{
+        return eventFlowApi.getEventByEventId(eventId);
     }
 
 

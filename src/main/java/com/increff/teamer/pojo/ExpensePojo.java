@@ -1,12 +1,12 @@
 package com.increff.teamer.pojo;
 
 import jakarta.persistence.*;
-
-import java.time.ZonedDateTime;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "new_expense_details", uniqueConstraints = @UniqueConstraint(name="unique_expense",columnNames = {"claimId","invoiceNo"}))
-public class NewExpensePojo extends AbstractVersionedPojo{
+@Table(name = "expense_details", uniqueConstraints = @UniqueConstraint(name="unique_expense",columnNames = {"claimId","invoiceNo"}))
+public class ExpensePojo extends AbstractVersionedPojo{
     @Id
     @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,19 @@ public class NewExpensePojo extends AbstractVersionedPojo{
     private String description;
     @Lob
     @Column(nullable = false,length = 1000000)
-    private byte[]  attachment;
+    private byte[] attachmentDetail;
+
+    @NotNull
+    @NotEmpty
+    private String attachmentFileName;
+
+    public String getAttachmentFileName() {
+        return attachmentFileName;
+    }
+
+    public void setAttachmentFileName(String attachmentFileName) {
+        this.attachmentFileName = attachmentFileName;
+    }
 
     public Long getExpenseId() {
         return expenseId;
@@ -73,23 +85,23 @@ public class NewExpensePojo extends AbstractVersionedPojo{
         this.description = description;
     }
 
-    public byte[] getAttachment() {
-        return attachment;
+    public byte[] getAttachmentDetail() {
+        return attachmentDetail;
     }
 
-    public NewExpensePojo(){
+    public ExpensePojo(){
 
     }
-    public NewExpensePojo(Long claimId, Long expenseAmount, String invoiceNo, String invoiceDate, String description, byte[] attachment) {
+    public ExpensePojo(Long claimId, Long expenseAmount, String invoiceNo, String invoiceDate, String description, byte[] attachmentDetail) {
         this.claimId = claimId;
         this.expenseAmount = expenseAmount;
         this.invoiceNo = invoiceNo;
         this.invoiceDate = invoiceDate;
         this.description = description;
-        this.attachment = attachment;
+        this.attachmentDetail = attachmentDetail;
     }
 
-    public void setAttachment(byte[] attachment) {
-        this.attachment = attachment;
+    public void setAttachmentDetail(byte[] attachmentDetail) {
+        this.attachmentDetail = attachmentDetail;
     }
 }

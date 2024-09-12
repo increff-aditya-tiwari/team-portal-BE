@@ -8,6 +8,7 @@ import com.increff.teamer.model.form.CreateTeamForm;
 import com.increff.teamer.model.form.DeleteTeamMemberForm;
 import com.increff.teamer.model.form.TeamUserMapForm;
 import com.increff.teamer.model.form.UpdateRequestForm;
+import com.increff.teamer.pojo.EventPojo;
 import com.increff.teamer.pojo.RequestDetailPojo;
 import com.increff.teamer.pojo.TeamPojo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +54,7 @@ public class TeamController {
         return  teamDto.getAllOpenRequestsForTeam(teamId);
     }
     @GetMapping("/join-invites/{teamId}")
-    public List<RequestDetailPojo> getAllInvitesFromTeam(@PathVariable("teamId") Long teamId) throws CommonApiException{
+    public RequestDetailPojo getAllInvitesFromTeam(@PathVariable("teamId") Long teamId) throws CommonApiException{
         return teamDto.getAllOpenInvitesForTeam(teamId);
     }
 
@@ -76,5 +77,10 @@ public class TeamController {
     @GetMapping("/get-user-teamIds/{userId}")
     public List<Long> getUserTeamList(@PathVariable("userId") Long userId) throws CommonApiException{
         return teamDto.getTeamByUserId(userId);
+    }
+
+    @GetMapping("/get/{eventId}")
+    public TeamPojo getTeamByEventId(@PathVariable("eventId") Long eventId) throws CommonApiException{
+        return teamDto.getTeamByEventId(eventId);
     }
 }

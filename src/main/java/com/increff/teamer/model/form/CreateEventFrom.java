@@ -8,10 +8,8 @@ import jakarta.validation.constraints.NotNull;
 
 public class CreateEventFrom {
 
-    @NotEmpty
     @NotNull
     private EventCategory category;
-    @NotEmpty
     @NotNull
     private EventStatus status;
     @NotEmpty

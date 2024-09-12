@@ -15,10 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TeamFlowApi {
@@ -36,6 +34,9 @@ public class TeamFlowApi {
     NotificationApi notificationApi;
 
 
+//    private ConcurrentHashMap<RequestStatus,List<RequestStatus>> requestStatusValidation = new ConcurrentHashMap<>();
+
+
     public TeamPojo createTeam(TeamPojo teamPojo) throws CommonApiException {
         teamPojo.setCreatedBy(userApi.getCurrentUser().getUserId());
         teamPojo = teamApi.saveTeam(teamPojo);
@@ -50,21 +51,29 @@ public class TeamFlowApi {
 
     public void teamJoinRequest(Long teamId) throws CommonApiException {
         TeamPojo teamPojo = teamApi.isTeamValid(teamId);
-        List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
         RequestDetailPojo requestDetailPojo = new RequestDetailPojo(RequestType.TEAM
                 ,teamPojo.getTeamId()
                 ,RequestCategory.REQUEST
                 ,teamPojo.getCreatedBy()
                 ,userApi.getCurrentUser().getUserId()
                 ,RequestStatus.PENDING);
-        if(teamUserMapApi.validateRequest(requestDetailPojo) && requestDetailApi.validateRequestForRequestType(requestDetailPojo)){
-            requestDetailPojoList.add(requestDetailPojo);
-            requestDetailApi.saveAll(requestDetailPojoList);
-            List<String> usernameList = new ArrayList<>();
-            usernameList.add(userApi.isValidUser(teamPojo.getCreatedBy()).getUsername());
-            notificationApi.generateNotification(usernameList, NotificationConstant.REQUEST, NotificationConstant.TEAM, teamPojo.getTeamId());
+        if(validateTeamRequest(requestDetailPojo)){
+            RequestDetailPojo existingRequestPojo =  requestDetailApi.validateRequestToAddRequest(requestDetailPojo);
+            if(existingRequestPojo != null && existingRequestPojo.getRequestStatus() == RequestStatus.PENDING){
+                throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited to join this team");
+            }
+            if(existingRequestPojo != null){
+                existingRequestPojo.setRequestStatus(requestDetailPojo.getRequestStatus());
+            }
+            requestDetailApi.saveAll(Collections.singletonList(existingRequestPojo == null ? requestDetailPojo : existingRequestPojo));
+            notificationApi.generateNotification(
+                    Collections.singletonList(userApi.isValidUser(teamPojo.getCreatedBy()).getUsername()),
+                    NotificationConstant.REQUEST,
+                    NotificationConstant.TEAM,
+                    teamPojo.getTeamId()
+            );
         }else {
-            throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited to join this team");
+            throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Joined the Team" + " or Already Requested or Invited to join this Team");
         }
     }
     public void teamJoinInvite(TeamUserMapForm teamUserMapForm) throws CommonApiException {
@@ -82,40 +91,51 @@ public class TeamFlowApi {
                     ,userPojo.getUserId()
                     ,teamPojo.getCreatedBy()
                     ,RequestStatus.PENDING);
-            if(teamUserMapApi.validateRequest(requestDetailPojo) && requestDetailApi.validateRequestForRequestType(requestDetailPojo)){
-                requestDetailPojoList.add(requestDetailPojo);
-                usernameList.add(userPojo.getUsername());
+            if(validateTeamRequest(requestDetailPojo)){
+                RequestDetailPojo existingRequestDetailPojo = requestDetailApi.validateRequestToAddRequest(requestDetailPojo);
+                if(existingRequestDetailPojo == null){
+                    requestDetailPojoList.add(requestDetailPojo);
+                    usernameList.add(userPojo.getUsername());
+                }else if(existingRequestDetailPojo.getRequestStatus() != RequestStatus.PENDING) {
+                    existingRequestDetailPojo.setRequestStatus(requestDetailPojo.getRequestStatus());
+                    requestDetailPojoList.add(existingRequestDetailPojo);
+                    usernameList.add(userPojo.getUsername());
+                }
             }
         }
         if(!requestDetailPojoList.isEmpty()){
             requestDetailApi.saveAll(requestDetailPojoList);
             notificationApi.generateNotification(usernameList, NotificationConstant.INVITE, NotificationConstant.TEAM, teamPojo.getTeamId());
         }else {
-            throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited join this Team"+ " Or Already Joined the team");
+            throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited to join this Team"+ " Or Already Joined the team");
         }
     }
 
 
     public void updateTeamJoinRequestInvite(UpdateRequestForm updateRequestForm) throws CommonApiException {
-        teamApi.isTeamValid(updateRequestForm.getRequestId());
-        RequestDetailPojo requestDetailPojo = requestDetailApi.isValidRequest(updateRequestForm.getRequestDetailId());
+        RequestDetailPojo requestDetailPojo = validateTeamRequestUpdate(updateRequestForm);
         requestDetailPojo.setRequestStatus(updateRequestForm.getRequestStatus());
-        List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
-        requestDetailPojoList.add(requestDetailPojo);
-        requestDetailApi.saveAll(requestDetailPojoList);
-        List<String > usernameList =new ArrayList<>();
-        usernameList.add(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername());
+//        List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
+//        requestDetailPojoList.add(requestDetailPojo);
+//        requestDetailApi.saveAll(requestDetailPojoList);
+        requestDetailApi.saveAll(Collections.singletonList(requestDetailPojo));
+//        List<String > usernameList =new ArrayList<>();
+//        usernameList.add(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername());
         NotificationConstant notificationConstant = null;
         if(updateRequestForm.getRequestStatus() == RequestStatus.ACCEPTED){
-            List<Long> userIds = new ArrayList<>();
+//            List<Long> userIds = new ArrayList<>();
+            Long userId = null;
             if(requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST){
-                userIds.add(requestDetailPojo.getRequestBy());
+//                userIds.add(requestDetailPojo.getRequestBy());
+                userId = requestDetailPojo.getRequestBy();
                 notificationConstant = NotificationConstant.REQUEST_ACCEPTED;
             } else if (requestDetailPojo.getRequestCategory() == RequestCategory.INVITE) {
-                userIds.add(requestDetailPojo.getRequestFor());
+//                userIds.add(requestDetailPojo.getRequestFor());
+                userId = requestDetailPojo.getRequestFor();
                 notificationConstant = NotificationConstant.INVITE_ACCEPTED;
             }
-            TeamUserMapForm teamUserMapForm = new TeamUserMapForm(updateRequestForm.getRequestId(),userIds);
+            TeamUserMapForm teamUserMapForm = new TeamUserMapForm(updateRequestForm.getRequestId()
+                    ,Collections.singletonList(userId));
             teamUserMapApi.addTeamMember(teamUserMapForm);
         }else {
             if(requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST){
@@ -124,17 +144,46 @@ public class TeamFlowApi {
                 notificationConstant = NotificationConstant.INVITE_REJECTED;
             }
         }
-        notificationApi.generateNotification(usernameList,notificationConstant, NotificationConstant.TEAM,requestDetailPojo.getRequestId());
+        notificationApi.generateNotification(Collections
+                        .singletonList(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername())
+                ,notificationConstant, NotificationConstant.TEAM,requestDetailPojo.getRequestId());
     }
 
+    private Boolean validateTeamRequest(RequestDetailPojo requestDetailPojo) throws CommonApiException{
+        return requestDetailApi.validateRequestForRequestType(requestDetailPojo)
+                && teamUserMapApi.validateRequest(requestDetailPojo);
+    }
+
+    private RequestDetailPojo validateTeamRequestUpdate(UpdateRequestForm updateRequestForm) throws CommonApiException{
+        if(updateRequestForm.getRequestStatus() != RequestStatus.ACCEPTED && updateRequestForm.getRequestStatus() != RequestStatus.REJECTED){
+            throw new CommonApiException(HttpStatus.BAD_REQUEST,"Request Status is not valid");
+        }
+        TeamPojo teamPojo = teamApi.isTeamValid(updateRequestForm.getRequestId());
+        RequestDetailPojo requestDetailPojo = requestDetailApi.isValidRequest(updateRequestForm.getRequestDetailId());
+        if(requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST){
+            if(!Objects.equals(teamPojo.getCreatedBy(), userApi.getCurrentUser().getUserId())
+                    || !Objects.equals(teamPojo.getCreatedBy(),requestDetailPojo.getRequestFor())
+                    || !Objects.equals(teamPojo.getTeamId(),requestDetailPojo.getRequestId())){
+                throw new CommonApiException(HttpStatus.BAD_REQUEST,"Not Authorised to make changes in " + teamPojo.getTeamName() + " Team");
+            }
+        }else if(requestDetailPojo.getRequestCategory() == RequestCategory.INVITE) {
+            if(!Objects.equals(requestDetailPojo.getRequestFor(), userApi.getCurrentUser().getUserId())
+                    || !Objects.equals(teamPojo.getTeamId(),requestDetailPojo.getRequestId())
+                    || !Objects.equals(teamPojo.getCreatedBy(),requestDetailPojo.getRequestBy())){
+                throw new CommonApiException(HttpStatus.BAD_REQUEST,"Not Authorised to make changes in " + teamPojo.getTeamName() + " Team");
+            }
+        }
+        return requestDetailPojo;
+    }
 
     public List<RequestDetailPojo> getAllOpenRequestsForTeam(Long requestId) throws CommonApiException{
         return requestDetailApi.getAllOpenRequestsForTeam(requestId);
     }
 
 
-    public List<RequestDetailPojo> getAllOpenInvitesForTeam(Long requestId) throws CommonApiException{
-        return requestDetailApi.getAllOpenInvitesForTeam(requestId,userApi.getCurrentUser().getUserId());
+    public RequestDetailPojo getAllOpenInvitesForTeam(Long requestId) throws CommonApiException{
+        TeamPojo teamPojo = teamApi.isTeamValid(requestId);
+        return requestDetailApi.getAllOpenInvitesForTeam(requestId,userApi.getCurrentUser().getUserId(),teamPojo.getCreatedBy());
 //        return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,RequestStatus.PENDING,RequestCategory.INVITE);
     }
 
@@ -174,5 +223,9 @@ public class TeamFlowApi {
             teamIdList.add(userTeamMappingPojo.getTeamId());
         }
         return teamIdList;
+    }
+
+    public TeamPojo getTeamByEventId(Long teamId) throws CommonApiException{
+        return teamApi.isTeamValid(teamId);
     }
 }

@@ -19,7 +19,7 @@ import java.util.List;
 public class UserDto {
 
     @Autowired
-    UserFlowApi userService;
+    UserFlowApi userFlowApi;
     @Autowired
     ValidationUtil validationUtil;
     @Autowired
@@ -29,17 +29,21 @@ public class UserDto {
 
     public UserData userLogin(LoginForm loginForm) throws CommonApiException{
         validationUtil.validateForm(loginForm);
-        return userService.userLogin(loginForm);
+        return userFlowApi.userLogin(loginForm);
     }
 
     public UserData createUser(CreateUserForm createUserForm) throws CommonApiException{
         validationUtil.validateForm(createUserForm);
         createUserForm.setPassword(this.bCryptPasswordEncoder.encode(createUserForm.getPassword()));
         UserPojo userPojo = convertUtil.convertDataToPojo(createUserForm,UserPojo.class);
-        return userService.createUser(userPojo);
+        return userFlowApi.createUser(userPojo);
     }
 
     public List<UserUiData> getAllUser() throws CommonApiException{
-        return userService.getAllUser();
+        return userFlowApi.getAllUser();
+    }
+
+    public void logout() throws CommonApiException{
+        userFlowApi.logout();
     }
 }

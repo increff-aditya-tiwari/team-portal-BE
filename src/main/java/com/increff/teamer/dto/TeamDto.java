@@ -41,13 +41,14 @@ public class TeamDto {
     }
 
     public void teamJoinRequest(TeamUserMapForm teamUserMapForm) throws CommonApiException{
+        validationUtil.validateForm(teamUserMapForm);
         teamFlowApi.teamJoinRequest(teamUserMapForm.getTeamId());
     }
 
     public List<RequestDetailPojo> getAllOpenRequestsForTeam(Long teamId) throws CommonApiException{
         return teamFlowApi.getAllOpenRequestsForTeam(teamId);
     }
-    public List<RequestDetailPojo> getAllOpenInvitesForTeam(Long teamId) throws CommonApiException{
+    public RequestDetailPojo getAllOpenInvitesForTeam(Long teamId) throws CommonApiException{
         return teamFlowApi.getAllOpenInvitesForTeam(teamId);
     }
 
@@ -67,5 +68,9 @@ public class TeamDto {
 
     public List<Long> getTeamByUserId(Long userId) throws CommonApiException{
         return teamFlowApi.getTeamByUserId(userId);
+    }
+
+    public TeamPojo getTeamByEventId(Long teamId) throws CommonApiException{
+        return teamFlowApi.getTeamByEventId(teamId);
     }
 }

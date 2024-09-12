@@ -2,16 +2,28 @@ package com.increff.teamer.model.form;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Lob;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.ZonedDateTime;
 
 public class AddExpenseForm {
+    @NotNull
     private Long expenseAmount;
+    @NotNull
+    @NotEmpty
     private String invoiceNo;
+    @NotNull
+    @NotEmpty
     private ZonedDateTime invoiceDate;
+    @NotNull
+    @NotEmpty
     private String description;
+    @NotNull
+    @NotEmpty
     private String attachment;
+    @NotNull
     private Long claimId;
 
     public Long getExpenseAmount() {

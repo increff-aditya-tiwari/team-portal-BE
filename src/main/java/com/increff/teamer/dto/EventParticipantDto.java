@@ -3,9 +3,9 @@ package com.increff.teamer.dto;
 import com.increff.teamer.exception.CommonApiException;
 import com.increff.teamer.flowApi.EventFlowApi;
 import com.increff.teamer.model.form.DeleteEventParticipantFrom;
-import com.increff.teamer.model.form.EventParticipantOldForm;
 import com.increff.teamer.model.form.EventParticipantsForm;
 import com.increff.teamer.model.form.UpdateRequestForm;
+import com.increff.teamer.pojo.RequestDetailPojo;
 import com.increff.teamer.util.ValidationUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,9 +31,9 @@ public class EventParticipantDto {
         eventFlowApi.eventJoinRequest(evenId);
     }
 
-    public void updateJoinEventRequestInvite(UpdateRequestForm updateRequestForm) throws CommonApiException{
+    public List<RequestDetailPojo> updateJoinEventRequestInvite(UpdateRequestForm updateRequestForm) throws CommonApiException{
         validationUtil.validateForm(updateRequestForm);
-        eventFlowApi.updateJoinEventRequestInvite(updateRequestForm);
+        return  eventFlowApi.updateJoinEventRequestInvite(updateRequestForm);
     }
 
     public void removeEventParticipant(DeleteEventParticipantFrom deleteEventParticipantFrom) throws CommonApiException{

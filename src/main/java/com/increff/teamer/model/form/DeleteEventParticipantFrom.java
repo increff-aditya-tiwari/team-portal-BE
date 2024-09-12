@@ -5,13 +5,10 @@ import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 public class DeleteEventParticipantFrom {
-    @NotEmpty
     @NotNull
     private Long participantId;
-    @NotEmpty
     @NotNull
     private ParticipantType participantType;
-    @NotEmpty
     @NotNull
     private Long eventId;
 

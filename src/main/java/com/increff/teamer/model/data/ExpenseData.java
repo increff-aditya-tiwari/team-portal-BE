@@ -1,14 +1,13 @@
-package com.increff.teamer.model.form;
+package com.increff.teamer.model.data;
 
-import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import org.springframework.web.multipart.MultipartFile;
 
-public class NewAddExpenseForm {
+public class ExpenseData {
     @NotNull
-    @Positive
+    private Long expenseId;
+    @NotNull
     private Long expenseAmount;
     @NotNull
     @NotEmpty
@@ -20,21 +19,13 @@ public class NewAddExpenseForm {
     @NotEmpty
     private String description;
     @NotNull
-    private MultipartFile attachmentDetail;
+    @NotEmpty
+    private String attachmentName;
     @NotNull
     private Long claimId;
 
     public Long getExpenseAmount() {
         return expenseAmount;
-    }
-
-    @Nullable
-    public Long getClaimId() {
-        return claimId;
-    }
-
-    public void setClaimId(Long claimId) {
-        this.claimId = claimId;
     }
 
     public void setExpenseAmount(Long expenseAmount) {
@@ -65,11 +56,37 @@ public class NewAddExpenseForm {
         this.description = description;
     }
 
-    public MultipartFile getAttachmentDetail() {
-        return attachmentDetail;
+    public String getAttachmentName() {
+        return attachmentName;
     }
 
-    public void setAttachmentDetail(MultipartFile attachmentDetail) {
-        this.attachmentDetail = attachmentDetail;
+    public void setAttachmentName(String attachmentName) {
+        this.attachmentName = attachmentName;
+    }
+
+    public Long getClaimId() {
+        return claimId;
+    }
+
+    public void setClaimId(Long claimId) {
+        this.claimId = claimId;
+    }
+
+    public Long getExpenseId() {
+        return expenseId;
+    }
+
+    public void setExpenseId(Long expenseId) {
+        this.expenseId = expenseId;
+    }
+
+    public ExpenseData(Long expenseId, Long expenseAmount, String invoiceNo, String invoiceDate, String description, String attachmentName, Long claimId) {
+        this.expenseId = expenseId;
+        this.expenseAmount = expenseAmount;
+        this.invoiceNo = invoiceNo;
+        this.invoiceDate = invoiceDate;
+        this.description = description;
+        this.attachmentName = attachmentName;
+        this.claimId = claimId;
     }
 }

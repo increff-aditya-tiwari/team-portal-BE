@@ -9,10 +9,8 @@ import java.util.List;
 
 public class EventParticipantsForm {
     @NotNull
-    @NotEmpty
     private Long eventId;
     @NotNull
-    @NotEmpty
     private ParticipantType participantType;
     @NotNull
     @NotEmpty

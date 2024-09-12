@@ -12,6 +12,7 @@ import com.increff.teamer.model.form.LoginForm;
 import com.increff.teamer.pojo.UserPojo;
 import com.increff.teamer.util.ConvertUtil;
 import com.increff.teamer.util.JwtUtils;
+import com.increff.teamer.util.WebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,6 +48,8 @@ public class UserFlowApi {
     AccessApi accessApi;
     @Autowired
     UserApi userApi;
+    @Autowired
+    WebSocketHandler webSocketHandler;
 
     public UserData userLogin(LoginForm loginForm) throws CommonApiException {
         authentication(loginForm.getUsername(),loginForm.getPassword());
@@ -62,6 +65,12 @@ public class UserFlowApi {
         UserData userData = convertUtil.convertPojoToData(userPojo,UserData.class);
         userData.setAuthorities(accessApi.getUserAuthority(userPojo.getUserId()));
         return userData;
+    }
+
+    public void logout() throws CommonApiException{
+        UserData userData = userApi.getCurrentUser();
+        SecurityContextHolder.clearContext();
+        webSocketHandler.closeConnection(userData.getUsername());
     }
 
 

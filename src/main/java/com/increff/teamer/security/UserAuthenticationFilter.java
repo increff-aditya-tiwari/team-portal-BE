@@ -11,6 +11,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -37,10 +38,19 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
 
         final String requestTokenHeader =  request.getHeader("Authorization");
 //        System.out.println("this is token "+ requestTokenHeader);
-        System.out.println("this is uri + " + request.getRequestURI());
-        System.out.println("this is cookie "+ Arrays.toString(request.getCookies()));
+//        System.out.println("this is uri + " + request.getRequestURI());
+//        System.out.println("this is cookie "+ request.getAttribute("Cookies"));
+        HttpSession session = request.getSession();
+        System.out.println("this is session "+ session.getId());
         final String update = request.getHeader("Upgrade");
         Cookie[] cookies = request.getCookies();
+//        if(cookies == null){
+//            Cookie cookie = new Cookie("sessionId", "123456");
+//            response.addCookie(cookie);
+//        }
+//        if(cookies != null){
+//            System.out.println("this is cookies "+getCookieByName(request, "sessionId"));
+//        }
         Cookie jwtCookie = getCookieByName(request, "jwtToken");
 
         String username = null;
@@ -56,8 +66,6 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
                 else {
                     if(request.getRequestURI().split("/").length >2){
                         jwtToken = request.getRequestURI().split("/")[2];
-                    }else{
-                        jwtToken = "Bearer";
                     }
                 }
 //                jwtToken = jwtCookie.getValue();
@@ -65,10 +73,10 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtils.extractUsername(jwtToken);
             }catch (ExpiredJwtException e){
-                e.printStackTrace();
+//                e.printStackTrace();
                 System.out.println("Token is Expired");
             }catch (Exception e){
-                 e.printStackTrace();
+//                 e.printStackTrace();
                  System.out.println("something went wrong when we are getting usrename from jwttoken");
             }
 
@@ -84,13 +92,17 @@ public class UserAuthenticationFilter extends OncePerRequestFilter {
             }
             final UserDetails userDetails = (UserDetails)  userData;
 
-             if(jwtUtils.validateToken(jwtToken,userDetails)){
-                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
-                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-             }else {
-                 System.out.println("token validation failed");
-             }
+            try {
+                if(jwtUtils.validateToken(jwtToken,userDetails)){
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails,null,userDetails.getAuthorities());
+                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }else {
+                    System.out.println("token validation failed");
+                }
+            } catch (CommonApiException e) {
+                throw new RuntimeException(e);
+            }
         }else {
             System.out.println("not able to get username from jwtutil extractusername methed");
         }

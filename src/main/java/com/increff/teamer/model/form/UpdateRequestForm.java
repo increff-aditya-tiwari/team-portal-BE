@@ -7,13 +7,10 @@ import jakarta.validation.constraints.NotNull;
 public class UpdateRequestForm {
 
     @NotNull
-    @NotEmpty
     private Long requestDetailId;
     @NotNull
-    @NotEmpty
     private Long requestId;
     @NotNull
-    @NotEmpty
     private RequestStatus requestStatus;
 
     public Long getRequestDetailId() {

@@ -3,7 +3,7 @@ package com.increff.teamer.pojo;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "user_notification_mapping",uniqueConstraints = @UniqueConstraint(name = "user_notification_unique_constraint",columnNames = {"notificationId","userName"}))
+@Table(name = "user_notification_mapping",uniqueConstraints = @UniqueConstraint(name = "user_notification_unique_constraint",columnNames = {"notificationId","username"}))
 public class UserNotificationMappingPojo extends AbstractVersionedPojo{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +49,9 @@ public class UserNotificationMappingPojo extends AbstractVersionedPojo{
         isUnseen = unseen;
     }
 
+    public UserNotificationMappingPojo(){
+
+    }
     public UserNotificationMappingPojo(Long notificationId, String username, Boolean isUnseen) {
         this.notificationId = notificationId;
         this.username = username;

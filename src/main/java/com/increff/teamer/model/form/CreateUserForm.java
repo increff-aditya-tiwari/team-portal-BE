@@ -1,16 +1,22 @@
 package com.increff.teamer.model.form;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
 //import javax.validation.constraints.NotNull;
 
 public class CreateUserForm {
+    @NotEmpty
     @NotNull
     private String userName;
+    @NotEmpty
     @NotNull
     private String fullName;
+    @NotEmpty
     @NotNull
     private String password;
+    @NotEmpty
+    @NotNull
     private String email;
 
     public String getEmail() {

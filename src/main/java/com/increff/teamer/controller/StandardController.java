@@ -1,15 +1,17 @@
 package com.increff.teamer.controller;
 
-import com.increff.teamer.model.form.*;
-import com.increff.teamer.pojo.ExpenseDetailsPojo;
-import com.increff.teamer.flowApi.ClaimService;
+import com.increff.teamer.dao.NewExpenseDao;
+import com.increff.teamer.dto.NotificationDto;
+import com.increff.teamer.flowApi.ExpenseClaimFlowApi;
 import com.increff.teamer.flowApi.EventFlowApi;
 import com.increff.teamer.flowApi.TeamFlowApi;
+import com.increff.teamer.pojo.ExpensePojo;
 import com.increff.teamer.util.WebSocketHandler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(
@@ -24,9 +26,13 @@ public class StandardController {
     @Autowired
     EventFlowApi eventFlowApi;
     @Autowired
-    ClaimService claimService;
+    ExpenseClaimFlowApi claimService;
     @Autowired
     private WebSocketHandler tradeWebSocketHandler;
+    @Autowired
+    private NotificationDto notificationDto;
+    @Autowired
+    private NewExpenseDao newExpenseDao;
 
 
 //    @PostMapping("/create")
@@ -223,29 +229,39 @@ public class StandardController {
 //        }
 //    }
 
+//    @GetMapping("/get-event/{eventId}")
+//    public ResponseEntity<?> getEventByEventId(@PathVariable("eventId") Long eventId){
+//        try {
+//            return ResponseEntity.status(200).body(claimService.getEventByEventId(eventId));
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
-    @PostMapping(value = "/add-claim/{eventId}")
-    public ResponseEntity<?> addClaim(@PathVariable("eventId") Long eventId){
-        try {
-            claimService.addClaim(eventId);
-            return ResponseEntity.status(200).body(null);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
 
-    @PostMapping(value = "/add-expense")
-    public ResponseEntity<?> addExpense(@RequestBody AddExpenseForm addExpenseForm) {
-        try {
-            claimService.addExpense(addExpenseForm);
-            return ResponseEntity.status(200).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//    @PostMapping(value = "/add-claim/{eventId}")
+//    public ResponseEntity<?> addClaim(@PathVariable("eventId") Long eventId){
+//        try {
+//            claimService.addClaim(eventId);
+//            return ResponseEntity.status(200).body(null);
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
+
+//    @PostMapping(value = "/add-expense")
+//    public ResponseEntity<?> addExpense(@RequestBody AddExpenseForm addExpenseForm) {
+//        try {
+//            claimService.addExpense(addExpenseForm);
+//            return ResponseEntity.status(200).body(null);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
 //    @PostMapping(value = "/add-file-expense",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 //    public ResponseEntity<?> addFileExpense(@ModelAttribute NewAddExpenseForm newAddExpenseForm) {
+//        System.out.println("thi si expense form " + newAddExpenseForm);
 //        try {
 //            claimService.addFileExpense(newAddExpenseForm);
 //            return ResponseEntity.status(200).body("Expense added successfully");
@@ -254,24 +270,24 @@ public class StandardController {
 //        }
 //    }
 
-    @PostMapping(value = "/remove-expense/{expenseId}")
-    public ResponseEntity<?> removeExpense(@PathVariable("expenseId") Long expenseId) {
-        try {
-            claimService.removeExpense(expenseId);
-            return ResponseEntity.status(200).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//    @PostMapping(value = "/remove-expense/{expenseId}")
+//    public ResponseEntity<?> removeExpense(@PathVariable("expenseId") Long expenseId) {
+//        try {
+//            claimService.removeExpense(expenseId);
+//            return ResponseEntity.status(200).body(null);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
-    @GetMapping("/get-expense/{expenseId}")
-    public ResponseEntity<?> getExpenseById(@PathVariable("expenseId") Long expenseId){
-        try {
-            return ResponseEntity.status(200).body(claimService.getExpenseById(expenseId));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//    @GetMapping("/get-expense/{expenseId}")
+//    public ResponseEntity<?> getExpenseById(@PathVariable("expenseId") Long expenseId){
+//        try {
+//            return ResponseEntity.status(200).body(claimService.getExpenseById(expenseId));
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
 //    @GetMapping("/get-file-expense/{expenseId}")
 //    public ResponseEntity<?> getFileExpenseById(@PathVariable("expenseId") Long expenseId){
@@ -282,77 +298,107 @@ public class StandardController {
 //        }
 //    }
 
-    @PostMapping("/update-expense")
-    public ResponseEntity<?> updateExpense(@RequestBody ExpenseDetailsPojo expenseDetailsPojo){
-        try {
-            claimService.updateExpense(expenseDetailsPojo);
-            return ResponseEntity.status(200).body(null);
+//    @PostMapping("/update-expense")
+//    public ResponseEntity<?> updateExpense(@RequestBody ExpenseDetailsPojo expenseDetailsPojo){
+//        try {
+//            claimService.updateExpense(expenseDetailsPojo);
+//            return ResponseEntity.status(200).body(null);
+//
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//    @PostMapping("/claim-approval-update")
+//    public ResponseEntity<?> updateClaimApproval(@RequestBody UpdateClaimApprovalForm updateClaimApprovalForm){
+//        try {
+//            claimService.updateClaimApproval(updateClaimApprovalForm);
+//            return ResponseEntity.status(200).body(null);
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
-    @PostMapping("/claim-approval-update")
-    public ResponseEntity<?> updateClaimApproval(@RequestBody UpdateClaimApprovalForm updateClaimApprovalForm){
-        try {
-            claimService.updateClaimApproval(updateClaimApprovalForm);
-            return ResponseEntity.status(200).body(null);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//    @GetMapping("/get-event-claims/{eventId}")
+//    public ResponseEntity<?> getEventClaims(@PathVariable("eventId") Long eventId){
+//        try {
+//            return ResponseEntity.status(200).body(claimService.getEventClaims(eventId));
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
-    @GetMapping("/get-event-claims/{eventId}")
-    public ResponseEntity<?> getEventClaims(@PathVariable("eventId") Long eventId){
-        try {
-            return ResponseEntity.status(200).body(claimService.getEventClaims(eventId));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//    @GetMapping("/get-claim-expenses/{claimId}")
+//    public ResponseEntity<?> getClaimExpenses(@PathVariable("claimId") Long claimId){
+//        try {
+//            return ResponseEntity.status(200).body(claimService.getClaimFileExpenses(claimId));
+////            return ResponseEntity.status(200).body(claimService.getClaimExpenses(claimId));
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
-    @GetMapping("/get-claim-expenses/{claimId}")
-    public ResponseEntity<?> getClaimExpenses(@PathVariable("claimId") Long claimId){
-        try {
-            return ResponseEntity.status(200).body(claimService.getClaimExpenses(claimId));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//    @GetMapping("/download-file/{expenseId}")
+//    public ResponseEntity<byte[]> downloadFile(@PathVariable("expenseId") Long expenseId) {
+//        System.out.println("We are in the download");
+//        Optional<ExpensePojo> expenseOpt = newExpenseDao.findById(expenseId);
+//        if (expenseOpt.isPresent()) {
+//            ExpensePojo expense = expenseOpt.get();
+//            byte[] fileContent = expense.getAttachmentDetail();
+////            HttpHeaders headers = new HttpHeaders();
+////            headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+////            headers.setContentDisposition(ContentDisposition.builder("attachment")
+////                    .filename(expense.getAttachmentFileName()) // Assumes you store file name
+////                    .build());
+//            System.out.println("we are sending file");
+//            return ResponseEntity.status(HttpStatus.OK).body(fileContent);
+////            return new ResponseEntity<>(fileContent, headers, HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
 
-    @GetMapping("/get-claim-approvals/{claimId}")
-    public ResponseEntity<?> getAllClaimApprovals(@PathVariable("claimId") Long claimId){
-        try {
-            return ResponseEntity.status(200).body(claimService.getAllClaimApprovals(claimId));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
-    @GetMapping("/get-pending-claim-approval")
-    public ResponseEntity<?> getAllPendingClaimApproval(){
-        try {
-            return ResponseEntity.status(200).body(claimService.getAllPendingClaimsApprovalForUser());
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+//    @GetMapping("/get-claim-file-expenses/{claimId}")
+//    public ResponseEntity<?> getClaimFileExpenses(@PathVariable("claimId") Long claimId){
+//        try {
+//            return ResponseEntity.status(200).body(claimService.getClaimFileExpenses(claimId));
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
 
-    @GetMapping("/get-claim/{claimId}")
-    public ResponseEntity<?> getClaimById(@PathVariable("claimId") Long claimId){
-        try {
-            return ResponseEntity.status(200).body(claimService.getClaimById(claimId));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
 
-    @GetMapping("/get-event/{eventId}")
-    public ResponseEntity<?> getEventByEventId(@PathVariable("eventId") Long eventId){
-        try {
-            return ResponseEntity.status(200).body(claimService.getEventByEventId(eventId));
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+
+//    @GetMapping("/get-claim-approvals/{claimId}")
+//    public ResponseEntity<?> getAllClaimApprovals(@PathVariable("claimId") Long claimId){
+//        try {
+//            return ResponseEntity.status(200).body(claimService.getAllClaimApprovals(claimId));
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
+//    @GetMapping("/get-pending-claim-approval")
+//    public ResponseEntity<?> getAllPendingClaimApproval(){
+//        try {
+//            return ResponseEntity.status(200).body(claimService.getAllPendingClaimsApprovalForUser());
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
+
+//    @GetMapping("/get-claim/{claimId}")
+//    public ResponseEntity<?> getClaimById(@PathVariable("claimId") Long claimId){
+//        try {
+//            return ResponseEntity.status(200).body(claimService.getClaimById(claimId));
+//        }catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+//        }
+//    }
+
+//    @GetMapping("/get-all-notification/{userId}")
+//    public List<NotificationPojo> getAllNotification(@PathVariable("userId") Long userId) throws CommonApiException{
+//        return notificationDto.getAllNotification(userId);
+//    }
+
+
 }

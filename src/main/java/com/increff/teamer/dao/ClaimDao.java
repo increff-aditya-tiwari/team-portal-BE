@@ -11,4 +11,6 @@ import java.util.List;
 public interface ClaimDao extends JpaRepository<ClaimPojo,Long> {
     public ClaimPojo findByEventIdAndClaimStatus(Long eventId, RequestStatus claimStatus);
     public List<ClaimPojo> findAllByEventId(Long eventId);
+
+    public ClaimPojo findByClaimId(Long claimId);
 }

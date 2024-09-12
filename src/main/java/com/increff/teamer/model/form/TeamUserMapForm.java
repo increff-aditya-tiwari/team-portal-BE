@@ -1,9 +1,15 @@
 package com.increff.teamer.model.form;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public class TeamUserMapForm {
+    @NotNull
     private Long teamId;
+    @NotEmpty
+    @NotNull
     private List<Long> userIds;
 
     public Long getTeamId() {

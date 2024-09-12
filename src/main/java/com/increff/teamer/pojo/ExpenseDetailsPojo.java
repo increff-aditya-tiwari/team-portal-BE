@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.time.ZonedDateTime;
 
 @Entity
-@Table(name = "expense_details", uniqueConstraints = @UniqueConstraint(name="unique_expense",columnNames = {"claimId","invoiceNo"}))
+@Table(name = "expense_details_old", uniqueConstraints = @UniqueConstraint(name="unique_expense",columnNames = {"claimId","invoiceNo"}))
 public class ExpenseDetailsPojo extends AbstractVersionedPojo{
     @Id
     @Column(nullable = false)

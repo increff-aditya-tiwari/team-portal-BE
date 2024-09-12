@@ -19,4 +19,6 @@ public interface RequestDetailDao extends JpaRepository<RequestDetailPojo,Long> 
     public List<RequestDetailPojo> findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(Long requestId, RequestType requestType, RequestStatus requestStatus, RequestCategory requestCategory);
     public RequestDetailPojo findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatus(Long requestId,RequestType requestType,Long requestFor,Long requestBy,RequestStatus requestStatus);
 //    public RequestDetailPojo findById(Long requestDetailId);
+    public RequestDetailPojo findByRequestIdAndRequestTypeAndRequestForAndRequestBy(Long requestId,RequestType requestType,Long requestFor,Long requestBy);
+    public RequestDetailPojo findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatusAndRequestCategory(Long requestId,RequestType requestType,Long requestFor,Long requestBy,RequestStatus requestStatus,RequestCategory requestCategory);
 }

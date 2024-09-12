@@ -1,7 +1,11 @@
 package com.increff.teamer.model.form;
 
+import jakarta.validation.constraints.NotNull;
+
 public class DeleteTeamMemberForm {
+    @NotNull
     private Long teamId;
+    @NotNull
     private Long userId;
 
     public Long getTeamId() {

@@ -28,11 +28,9 @@ public class UserApi implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserPojo userPojo  = userDao.findByUserName(username);
         if(userPojo == null){
-//            System.out.println("User Not found in loadUserByUsername flowApi");
             throw new UsernameNotFoundException("User Nor found");
         }
-        UserData userData = convertUtil.convertPojoToData(userPojo,UserData.class);
-        return userData;
+        return convertUtil.convertPojoToData(userPojo,UserData.class);
     }
 
     public UserPojo saveUser(UserPojo userPojo) throws CommonApiException {

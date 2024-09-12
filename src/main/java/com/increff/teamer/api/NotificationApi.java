@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class NotificationApi {
@@ -48,6 +49,15 @@ public class NotificationApi {
             }
         }
         userNotificationMappingDao.saveAll(userNotificationMappingPojoList);
+    }
+
+    public List<NotificationPojo> getAllNotificationForUser(String username) throws CommonApiException{
+        List<UserNotificationMappingPojo> userNotificationMappingPojoList = userNotificationMappingDao.findByUsername(username);
+        return notificationDao.findAllByNotificationIdIn(
+                userNotificationMappingPojoList
+                        .stream()
+                        .map(UserNotificationMappingPojo::getNotificationId)
+                        .collect(Collectors.toList()));
     }
 
     private Boolean validateUserNotification(UserNotificationMappingPojo userNotificationMappingPojo) throws CommonApiException{

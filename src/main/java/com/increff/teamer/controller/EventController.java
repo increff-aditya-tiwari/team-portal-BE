@@ -55,9 +55,14 @@ public class EventController {
         return eventDto.getAllOpenRequestsForEvent(eventId);
     }
 
+    @GetMapping("/get-all-invites/{eventId}")
+    public List<RequestDetailPojo> getAllInvitesFromEvent(@PathVariable("eventId") Long eventId) throws CommonApiException{
+        return eventDto.getAllOpenInvitesFromEvent(eventId);
+    }
+
     @PostMapping("/join-request-update")
-    public void updateJoinEventRequest(@RequestBody UpdateRequestForm updateRequestForm) throws CommonApiException {
-        eventParticipantDto.updateJoinEventRequestInvite(updateRequestForm);
+    public List<RequestDetailPojo> updateJoinEventRequest(@RequestBody UpdateRequestForm updateRequestForm) throws CommonApiException {
+        return eventParticipantDto.updateJoinEventRequestInvite(updateRequestForm);
     }
 
     @GetMapping("/get-all-participants/{eventId}")
@@ -70,8 +75,13 @@ public class EventController {
         eventParticipantDto.removeEventParticipant(deleteEventParticipantFrom);
     }
 
-    @GetMapping("/get-all-participant/{eventId}")
+    @GetMapping("/get-all-events-for-participants/{eventId}")
     public List<Long> getParticipantEventList(@PathVariable("eventId") Long eventId) throws CommonApiException{
         return eventParticipantDto.getEventByParticipantId(eventId);
+    }
+
+    @GetMapping("/get/{eventId}")
+    public EventPojo getEventByEventId(@PathVariable("eventId") Long eventId) throws CommonApiException{
+        return eventDto.getEventByEventId(eventId);
     }
 }

@@ -1,5 +1,6 @@
 package com.increff.teamer.controller;
 
+import com.increff.teamer.dto.NotificationDto;
 import com.increff.teamer.dto.UserDto;
 import com.increff.teamer.exception.CommonApiException;
 import com.increff.teamer.model.data.UserData;
@@ -7,6 +8,9 @@ import com.increff.teamer.model.data.UserUiData;
 import com.increff.teamer.model.form.CreateUserForm;
 import com.increff.teamer.model.form.LoginForm;
 import com.increff.teamer.flowApi.UserFlowApi;
+import com.increff.teamer.pojo.NotificationPojo;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +30,8 @@ public class UserController {
 
     @Autowired
     UserDto userDto;
+    @Autowired
+    NotificationDto notificationDto;
 
 
     @PostMapping("/login")
@@ -43,5 +49,14 @@ public class UserController {
         return userDto.getAllUser();
     }
 
+    @PostMapping("/logout")
+    public void logout(HttpServletRequest request, HttpServletResponse response) throws CommonApiException{
+        userDto.logout();
+    }
+
+    @GetMapping("/get-all-notification/{userId}")
+    public List<NotificationPojo> getAllNotification(@PathVariable("userId") Long userId) throws CommonApiException{
+        return notificationDto.getAllNotification(userId);
+    }
 
 }

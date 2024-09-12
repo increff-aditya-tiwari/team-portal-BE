@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,8 +32,17 @@ public class RequestDetailApi {
     public List<RequestDetailPojo> getAllOpenRequestsForEvent(Long requestId) throws CommonApiException{
         return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId, RequestType.EVENT, RequestStatus.PENDING, RequestCategory.REQUEST);
     }
-    public List<RequestDetailPojo> getAllOpenInvitesForTeam(Long requestId,Long userId) throws CommonApiException{
-        return requestDetailDao.findAllByRequestIdAndRequestForAndRequestCategory(requestId,userId,RequestCategory.INVITE);
+
+    public List<RequestDetailPojo> getAllOpenInvitesForEvent(Long requestId) throws CommonApiException{
+        return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId, RequestType.EVENT, RequestStatus.PENDING, RequestCategory.INVITE);
+    }
+    public RequestDetailPojo getAllOpenInvitesForTeam(Long requestId,Long requestFor,Long requestBy) throws CommonApiException{
+        return requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,requestFor,requestBy,RequestStatus.PENDING,RequestCategory.INVITE);
+
+//        return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,RequestStatus.PENDING,RequestCategory.INVITE);
+    }
+    public List<RequestDetailPojo> getAllOpenInvitesForEvent(Long requestId,Long requestFor,Long requestBy) throws CommonApiException{
+        return Collections.singletonList(requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatusAndRequestCategory(requestId,RequestType.EVENT,requestFor,requestBy,RequestStatus.PENDING,RequestCategory.INVITE));
 //        return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,RequestStatus.PENDING,RequestCategory.INVITE);
     }
 
@@ -43,9 +54,21 @@ public class RequestDetailApi {
         return requestDetailPojoOptional.get();
     }
 
+    public RequestDetailPojo validateRequestToAddRequest(RequestDetailPojo requestDetailPojo) throws CommonApiException {
+
+//        if (existingRequestDetailPojo != null && existingRequestDetailPojo.getRequestStatus() == RequestStatus.PENDING) {
+//            throw new CommonApiException(HttpStatus.BAD_REQUEST, "Already Requested or Invited to join this team");
+//        }
+        return requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestBy(
+                requestDetailPojo.getRequestId(), requestDetailPojo.getRequestType(), requestDetailPojo.getRequestFor(), requestDetailPojo.getRequestBy());
+    }
+
     public Boolean validateRequestForRequestType(RequestDetailPojo requestDetailPojo){
-        RequestDetailPojo existingPendingRequest = requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatus(requestDetailPojo.getRequestId(), requestDetailPojo.getRequestType(),requestDetailPojo.getRequestFor(),requestDetailPojo.getRequestBy(), RequestStatus.PENDING);
-        RequestDetailPojo existingAcceptedRequest = requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatus(requestDetailPojo.getRequestId(), requestDetailPojo.getRequestType(),requestDetailPojo.getRequestFor(),requestDetailPojo.getRequestBy(), RequestStatus.ACCEPTED);
-        return existingPendingRequest == null && existingAcceptedRequest == null;
+        RequestCategory requestCategory = requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST ? RequestCategory.INVITE : RequestCategory.REQUEST;
+        RequestDetailPojo existingPendingRequestInvite = requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatusAndRequestCategory(requestDetailPojo.getRequestId(), requestDetailPojo.getRequestType(),requestDetailPojo.getRequestBy(),requestDetailPojo.getRequestFor(), RequestStatus.PENDING,requestCategory);
+//        RequestDetailPojo existingAcceptedRequest = requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatus(requestDetailPojo.getRequestId(), requestDetailPojo.getRequestType(),requestDetailPojo.getRequestFor(),requestDetailPojo.getRequestBy(), RequestStatus.ACCEPTED);
+//        return existingPendingRequest == null && existingAcceptedRequest == null;
+        return existingPendingRequestInvite == null;
     }
 }
+

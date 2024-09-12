@@ -14,10 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,7 +53,7 @@ public class EventFlowApi {
     NotificationApi notificationApi;
 
     public EventPojo createEvent(EventPojo eventPojo) throws CommonApiException {
-        eventApi.isValidEvent(eventPojo.getEventId());
+//        eventApi.isValidEvent(eventPojo.getEventId());
         eventPojo.setEventOrganiser(userApi.getCurrentUser().getUserId());
         eventPojo = eventApi.saveEvent(eventPojo);
         List<Long> participantIds = new ArrayList<>();
@@ -72,11 +69,16 @@ public class EventFlowApi {
             throw new CommonApiException(HttpStatus.UNAUTHORIZED,"Not Authorised to make changes in " + eventPojo.getEventName() + " event");
         }
         if(eventParticipantsForm.getParticipantType() == ParticipantType.TEAM){
+            Long totalInvitedMembersOfTeam = 0L;
             for(Long teamId : eventParticipantsForm.getParticipantIds()){
                 TeamPojo teamPojo = teamApi.isTeamValid(teamId);
                 if(eventParticipantApi.checkParticipant(ParticipantType.TEAM,teamId,eventPojo.getEventId()) == null){
-                    inviteTeamParticipants(teamPojo,eventPojo);
+                    Long memberInvited = inviteTeamParticipants(teamPojo,eventPojo);
+                    totalInvitedMembersOfTeam = totalInvitedMembersOfTeam + memberInvited;
                 }
+            }
+            if(Objects.equals(totalInvitedMembersOfTeam,0L)){
+                throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited join this Event"+ " Or Already Joined the Event");
             }
         }
         else {
@@ -90,9 +92,18 @@ public class EventFlowApi {
                         ,userPojo.getUserId()
                         ,eventPojo.getEventOrganiser()
                         ,RequestStatus.PENDING);
-                if(eventParticipantApi.validateEventRequest(requestDetailPojo) && requestDetailApi.validateRequestForRequestType(requestDetailPojo)){
-                    requestDetailPojoList.add(requestDetailPojo);
-                    usernameList.add(userPojo.getUsername());
+                if(validateEventRequest(requestDetailPojo)){
+                    RequestDetailPojo existingRequestDetailPojo = requestDetailApi.validateRequestToAddRequest(requestDetailPojo);
+                    if(existingRequestDetailPojo == null){
+                        requestDetailPojoList.add(requestDetailPojo);
+                        usernameList.add(userPojo.getUsername());
+                    }else if(existingRequestDetailPojo.getRequestStatus() != RequestStatus.PENDING) {
+                        existingRequestDetailPojo.setRequestStatus(requestDetailPojo.getRequestStatus());
+                        requestDetailPojoList.add(existingRequestDetailPojo);
+                        usernameList.add(userPojo.getUsername());
+                    }
+//                    requestDetailPojoList.add(requestDetailPojo);
+//                    usernameList.add(userPojo.getUsername());
                 }
             }
             if(!requestDetailPojoList.isEmpty()){
@@ -104,7 +115,7 @@ public class EventFlowApi {
         }
     }
 
-    public void inviteTeamParticipants(TeamPojo teamPojo,EventPojo eventPojo) throws CommonApiException{
+    public Long inviteTeamParticipants(TeamPojo teamPojo,EventPojo eventPojo) throws CommonApiException{
         List<UserTeamMappingPojo> userTeamMappingPojoList = teamUserMapApi.findAllByTeamId(teamPojo.getTeamId());
         List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
         List<String> usernameList = new ArrayList<>();
@@ -116,15 +127,23 @@ public class EventFlowApi {
                     ,userPojo.getUserId()
                     ,eventPojo.getEventOrganiser()
                     ,RequestStatus.PENDING);
-            if(eventParticipantApi.validateEventRequest(requestDetailPojo) && requestDetailApi.validateRequestForRequestType(requestDetailPojo)){
-                requestDetailPojoList.add(requestDetailPojo);
-                usernameList.add(userPojo.getUsername());
+            if(validateEventRequest(requestDetailPojo)){
+                RequestDetailPojo existingRequestDetailPojo = requestDetailApi.validateRequestToAddRequest(requestDetailPojo);
+                if(existingRequestDetailPojo == null){
+                    requestDetailPojoList.add(requestDetailPojo);
+                    usernameList.add(userPojo.getUsername());
+                }else if(existingRequestDetailPojo.getRequestStatus() != RequestStatus.PENDING) {
+                    existingRequestDetailPojo.setRequestStatus(requestDetailPojo.getRequestStatus());
+                    requestDetailPojoList.add(existingRequestDetailPojo);
+                    usernameList.add(userPojo.getUsername());
+                }
             }
         }
         if(!requestDetailPojoList.isEmpty()){
             requestDetailApi.saveAll(requestDetailPojoList);
             notificationApi.generateNotification(usernameList, NotificationConstant.INVITE, NotificationConstant.EVENT, eventPojo.getEventId());
         }
+        return (long) requestDetailPojoList.size();
     }
 
     public void eventJoinRequest(Long eventId) throws CommonApiException {
@@ -135,51 +154,98 @@ public class EventFlowApi {
                 ,eventPojo.getEventOrganiser()
                 ,userApi.getCurrentUser().getUserId()
                 , RequestStatus.PENDING);
-        if(eventParticipantApi.validateEventRequest(requestDetailPojo) && requestDetailApi.validateRequestForRequestType(requestDetailPojo)){
-            List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
-            requestDetailPojoList.add(requestDetailPojo);
-            requestDetailApi.saveAll(requestDetailPojoList);
-            List<String> usernameList = new ArrayList<>();
-            usernameList.add(userApi.isValidUser(eventPojo.getEventOrganiser()).getUsername());
-            notificationApi.generateNotification(usernameList, NotificationConstant.REQUEST, NotificationConstant.EVENT, eventPojo.getEventId());
+        if(validateEventRequest(requestDetailPojo)){
+            RequestDetailPojo existingRequestDetailPojo = requestDetailApi.validateRequestToAddRequest(requestDetailPojo);
+            if(existingRequestDetailPojo != null && existingRequestDetailPojo.getRequestStatus() == RequestStatus.PENDING){
+                throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited to join this Event");
+            }
+            if(existingRequestDetailPojo != null){
+                existingRequestDetailPojo.setRequestStatus(requestDetailPojo.getRequestStatus());
+            }
+            requestDetailApi.saveAll(Collections.singletonList(existingRequestDetailPojo == null ? requestDetailPojo : existingRequestDetailPojo ));
+            notificationApi.generateNotification(
+                    Collections.singletonList(userApi.isValidUser(eventPojo.getEventOrganiser()).getUsername()),
+                    NotificationConstant.REQUEST,
+                    NotificationConstant.EVENT,
+                    eventPojo.getEventId()
+            );
         }else {
-            throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited join this Event"+ " Or Already Joined the Event");
+            throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Joined the Event" + " or Already Requested or Invited to join this Event");
         }
     }
 
+    private Boolean validateEventRequest(RequestDetailPojo requestDetailPojo) throws CommonApiException{
+        return requestDetailApi.validateRequestForRequestType(requestDetailPojo)
+                && eventParticipantApi.validateEventRequest(requestDetailPojo);
+    }
 
-    public void updateJoinEventRequestInvite(UpdateRequestForm updateRequestForm) throws CommonApiException {
-        eventApi.isValidEvent(updateRequestForm.getRequestId());
-        RequestDetailPojo requestDetailPojo = requestDetailApi.isValidRequest(updateRequestForm.getRequestDetailId());
-        List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
-        requestDetailPojoList.add(requestDetailPojo);
-        requestDetailApi.saveAll(requestDetailPojoList);
-        List<String > usernameList =new ArrayList<>();
-        usernameList.add(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername());
+
+    public List<RequestDetailPojo> updateJoinEventRequestInvite(UpdateRequestForm updateRequestForm) throws CommonApiException {
+        RequestDetailPojo requestDetailPojo = validateTeamRequestUpdate(updateRequestForm);
+//        RequestDetailPojo requestDetailPojo = requestDetailApi.isValidRequest(updateRequestForm.getRequestDetailId());
+        requestDetailPojo.setRequestStatus(updateRequestForm.getRequestStatus());
+        requestDetailApi.saveAll(Collections.singletonList(requestDetailPojo));
+//        List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
+//        requestDetailPojoList.add(requestDetailPojo);
+//        requestDetailApi.saveAll(requestDetailPojoList);
+
+//        List<String > usernameList =new ArrayList<>();
+//        usernameList.add(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername());
         NotificationConstant notificationConstant = null;
 
         if(updateRequestForm.getRequestStatus() == RequestStatus.ACCEPTED){
-            List<Long> participantIds = new ArrayList<>();
+//            List<Long> participantIds = new ArrayList<>();
+            Long participantId = null;
             if(requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST){
-                participantIds.add(requestDetailPojo.getRequestBy());
+//                participantIds.add(requestDetailPojo.getRequestBy());
+                participantId = requestDetailPojo.getRequestBy();
                 notificationConstant = NotificationConstant.REQUEST_ACCEPTED;
             } else if (requestDetailPojo.getRequestCategory() == RequestCategory.INVITE) {
-                participantIds.add(requestDetailPojo.getRequestFor());
+//                participantIds.add(requestDetailPojo.getRequestFor());
+                participantId = requestDetailPojo.getRequestFor();
                 notificationConstant = NotificationConstant.INVITE_ACCEPTED;
             }
-            EventParticipantsForm eventParticipantsForm = new EventParticipantsForm(updateRequestForm.getRequestId(),ParticipantType.INDIVIDUAL,participantIds);
+            EventParticipantsForm eventParticipantsForm = new EventParticipantsForm(updateRequestForm.getRequestId()
+                    ,ParticipantType.INDIVIDUAL
+                    ,Collections.singletonList(participantId));
             eventParticipantApi.addEventParticipant(eventParticipantsForm);
-            notificationApi.generateNotification(usernameList, notificationConstant, NotificationConstant.EVENT,requestDetailPojo.getRequestId());
+//            notificationApi.generateNotification(usernameList, notificationConstant, NotificationConstant.EVENT,requestDetailPojo.getRequestId());
 
-            // we have to implement the method to ad the team mapping also if any invited team member is accepted the invite.
+            // we have to implement the method to add the team mapping also if any invited team member is accepted the invite.
         }else {
             if(requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST){
                 notificationConstant = NotificationConstant.REQUEST_REJECTED;
             } else if (requestDetailPojo.getRequestCategory() == RequestCategory.INVITE) {
                 notificationConstant = NotificationConstant.INVITE_REJECTED;
             }
-            notificationApi.generateNotification(usernameList, notificationConstant, NotificationConstant.TEAM,requestDetailPojo.getRequestId());
+//            notificationApi.generateNotification(usernameList, notificationConstant, NotificationConstant.EVENT,requestDetailPojo.getRequestId());
         }
+        notificationApi.generateNotification(Collections
+                .singletonList(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername())
+                , notificationConstant, NotificationConstant.EVENT,requestDetailPojo.getRequestId());
+        return Collections.singletonList(requestDetailPojo);
+    }
+
+    private RequestDetailPojo validateTeamRequestUpdate(UpdateRequestForm updateRequestForm) throws CommonApiException{
+        if(updateRequestForm.getRequestStatus() != RequestStatus.ACCEPTED && updateRequestForm.getRequestStatus() != RequestStatus.REJECTED){
+            throw new CommonApiException(HttpStatus.BAD_REQUEST,"Request Status is not valid");
+        }
+        EventPojo eventPojo = eventApi.isValidEvent(updateRequestForm.getRequestId());
+        RequestDetailPojo requestDetailPojo = requestDetailApi.isValidRequest(updateRequestForm.getRequestDetailId());
+        if(requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST){
+            if(!Objects.equals(eventPojo.getEventOrganiser(), userApi.getCurrentUser().getUserId())
+                    || !Objects.equals(eventPojo.getEventOrganiser(),requestDetailPojo.getRequestFor())
+                    || !Objects.equals(eventPojo.getEventId(),requestDetailPojo.getRequestId())){
+                throw new CommonApiException(HttpStatus.BAD_REQUEST,"Not Authorised to make changes in " + eventPojo.getEventName() + " Team");
+            }
+        }else if(requestDetailPojo.getRequestCategory() == RequestCategory.INVITE) {
+            if(!Objects.equals(requestDetailPojo.getRequestFor(), userApi.getCurrentUser().getUserId())
+                    || !Objects.equals(eventPojo.getEventId(),requestDetailPojo.getRequestId())
+                    || !Objects.equals(eventPojo.getEventOrganiser(),requestDetailPojo.getRequestBy())){
+                throw new CommonApiException(HttpStatus.BAD_REQUEST,"Not Authorised to make changes in " + eventPojo.getEventName() + " Team");
+            }
+        }
+        return requestDetailPojo;
     }
 
 
@@ -219,6 +285,10 @@ public class EventFlowApi {
 
     public List<RequestDetailPojo> getAllOpenRequestsForEvent(Long requestId) throws CommonApiException{
         return requestDetailApi.getAllOpenRequestsForEvent(requestId);
+    }
+
+    public List<RequestDetailPojo> getAllOpenInvitesFromEvent(Long requestId) throws CommonApiException{
+        return requestDetailApi.getAllOpenInvitesForEvent(requestId);
     }
 
     public List<EventPojo> getAllEvent() throws CommonApiException {
@@ -263,6 +333,10 @@ public class EventFlowApi {
                 .stream()
                 .map(EventParticipantPojo::getEventId)
                 .collect(Collectors.toList());
+    }
+
+    public EventPojo getEventByEventId(Long eventId) throws CommonApiException{
+        return eventApi.isValidEvent(eventId);
     }
 
 }

@@ -57,7 +57,7 @@ public class UserSecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/user/login", "/user/create","/notify","/app//web-notify","/stocks").permitAll()
+                        .requestMatchers("/user/login", "/user/create").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .anyRequest().authenticated()
                 )
