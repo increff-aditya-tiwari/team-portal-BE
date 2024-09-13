@@ -46,6 +46,7 @@ public class UserFlowApi {
     public UserData userLogin(LoginForm loginForm) throws CommonApiException {
         authentication(loginForm.getUsername(),loginForm.getPassword());
         UserData userData = (UserData)userApi.loadUserByUsername(loginForm.getUsername());
+        //Adding the accesses of the user
         userData.setAuthorities(accessApi.getUserAuthority(userData.getUserId()));
         userData.setJwtToken(jwtUtils.generateToken(userData));
         return userData;
@@ -53,6 +54,7 @@ public class UserFlowApi {
 
     public UserData createUser(UserPojo userPojo) throws CommonApiException {
         userPojo = userApi.saveUser(userPojo);
+        //Generating the default access for each user who register
         accessApi.generateDefaultAccess(userPojo);
         UserData userData = convertUtil.convertPojoToData(userPojo,UserData.class);
         userData.setAuthorities(accessApi.getUserAuthority(userPojo.getUserId()));
@@ -62,6 +64,7 @@ public class UserFlowApi {
     public void logout() throws CommonApiException{
         UserData userData = userApi.getCurrentUser();
         SecurityContextHolder.clearContext();
+        //Removing the WebSocket Connection
         webSocketHandler.closeConnection(userData.getUsername());
     }
 

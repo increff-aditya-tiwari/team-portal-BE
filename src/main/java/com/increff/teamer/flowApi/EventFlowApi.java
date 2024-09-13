@@ -12,6 +12,7 @@ import com.increff.teamer.pojo.*;
 import com.increff.teamer.util.ConvertUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -38,12 +39,10 @@ public class EventFlowApi {
     private NotificationApi notificationApi;
 
     public EventPojo createEvent(EventPojo eventPojo) throws CommonApiException {
-//        eventApi.isValidEvent(eventPojo.getEventId());
         eventPojo.setEventOrganiser(userApi.getCurrentUser().getUserId());
         eventPojo = eventApi.saveEvent(eventPojo);
-        List<Long> participantIds = new ArrayList<>();
-        participantIds.add(eventPojo.getEventOrganiser());
-        EventParticipantsForm eventParticipantsForm = new EventParticipantsForm(eventPojo.getEventId(),ParticipantType.INDIVIDUAL,participantIds);
+        //Adding the current user who created the event into the event.
+        EventParticipantsForm eventParticipantsForm = new EventParticipantsForm(eventPojo.getEventId(),ParticipantType.INDIVIDUAL,Collections.singletonList(eventPojo.getEventOrganiser()));
         eventParticipantApi.addEventParticipant(eventParticipantsForm);
         return eventPojo;
     }
@@ -54,6 +53,7 @@ public class EventFlowApi {
             throw new CommonApiException(HttpStatus.UNAUTHORIZED,"Not Authorised to make changes in " + eventPojo.getEventName() + " event");
         }
         if(eventParticipantsForm.getParticipantType() == ParticipantType.TEAM){
+            //Storing the no of members of the team we sent the invite
             Long totalInvitedMembersOfTeam = 0L;
             for(Long teamId : eventParticipantsForm.getParticipantIds()){
                 TeamPojo teamPojo = teamApi.isTeamValid(teamId);
@@ -63,7 +63,7 @@ public class EventFlowApi {
                 }
             }
             if(Objects.equals(totalInvitedMembersOfTeam,0L)){
-                throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited join this Event"+ " Or Already Joined the Event");
+                throw new CommonApiException(HttpStatus.BAD_REQUEST,"All the Members of Team already Requested or Invited to join this Event"+ " Or Already Joined the Event");
             }
         }
         else {
@@ -87,8 +87,6 @@ public class EventFlowApi {
                         requestDetailPojoList.add(existingRequestDetailPojo);
                         usernameList.add(userPojo.getUsername());
                     }
-//                    requestDetailPojoList.add(requestDetailPojo);
-//                    usernameList.add(userPojo.getUsername());
                 }
             }
             if(!requestDetailPojoList.isEmpty()){
@@ -167,26 +165,16 @@ public class EventFlowApi {
 
     public List<RequestDetailPojo> updateJoinEventRequestInvite(UpdateRequestForm updateRequestForm) throws CommonApiException {
         RequestDetailPojo requestDetailPojo = validateTeamRequestUpdate(updateRequestForm);
-//        RequestDetailPojo requestDetailPojo = requestDetailApi.isValidRequest(updateRequestForm.getRequestDetailId());
         requestDetailPojo.setRequestStatus(updateRequestForm.getRequestStatus());
         requestDetailApi.saveAll(Collections.singletonList(requestDetailPojo));
-//        List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
-//        requestDetailPojoList.add(requestDetailPojo);
-//        requestDetailApi.saveAll(requestDetailPojoList);
-
-//        List<String > usernameList =new ArrayList<>();
-//        usernameList.add(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername());
         NotificationConstant notificationConstant = null;
 
         if(updateRequestForm.getRequestStatus() == RequestStatus.ACCEPTED){
-//            List<Long> participantIds = new ArrayList<>();
             Long participantId = null;
             if(requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST){
-//                participantIds.add(requestDetailPojo.getRequestBy());
                 participantId = requestDetailPojo.getRequestBy();
                 notificationConstant = NotificationConstant.REQUEST_ACCEPTED;
             } else if (requestDetailPojo.getRequestCategory() == RequestCategory.INVITE) {
-//                participantIds.add(requestDetailPojo.getRequestFor());
                 participantId = requestDetailPojo.getRequestFor();
                 notificationConstant = NotificationConstant.INVITE_ACCEPTED;
             }
@@ -194,7 +182,6 @@ public class EventFlowApi {
                     ,ParticipantType.INDIVIDUAL
                     ,Collections.singletonList(participantId));
             eventParticipantApi.addEventParticipant(eventParticipantsForm);
-//            notificationApi.generateNotification(usernameList, notificationConstant, NotificationConstant.EVENT,requestDetailPojo.getRequestId());
 
             // we have to implement the method to add the team mapping also if any invited team member is accepted the invite.
         }else {
@@ -203,7 +190,6 @@ public class EventFlowApi {
             } else if (requestDetailPojo.getRequestCategory() == RequestCategory.INVITE) {
                 notificationConstant = NotificationConstant.INVITE_REJECTED;
             }
-//            notificationApi.generateNotification(usernameList, notificationConstant, NotificationConstant.EVENT,requestDetailPojo.getRequestId());
         }
         notificationApi.generateNotification(Collections
                 .singletonList(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername())
@@ -269,10 +255,12 @@ public class EventFlowApi {
 
 
     public List<RequestDetailPojo> getAllOpenRequestsForEvent(Long requestId) throws CommonApiException{
+        eventApi.isValidEvent(requestId);
         return requestDetailApi.getAllOpenRequestsForEvent(requestId);
     }
 
     public List<RequestDetailPojo> getAllOpenInvitesFromEvent(Long requestId) throws CommonApiException{
+        eventApi.isValidEvent(requestId);
         return requestDetailApi.getAllOpenInvitesForEvent(requestId);
     }
 

@@ -40,10 +40,8 @@ public class TeamFlowApi {
     public TeamPojo createTeam(TeamPojo teamPojo) throws CommonApiException {
         teamPojo.setCreatedBy(userApi.getCurrentUser().getUserId());
         teamPojo = teamApi.saveTeam(teamPojo);
-        List<Long> userIdList = new ArrayList<>();
-        userIdList.add(userApi.getCurrentUser().getUserId());
-        TeamUserMapForm teamUserMapForm = new TeamUserMapForm(teamPojo.getTeamId(),userIdList);
-        teamApi.isTeamValid(teamUserMapForm.getTeamId());
+        //Adding the current User Who created the team to the team
+        TeamUserMapForm teamUserMapForm = new TeamUserMapForm(teamPojo.getTeamId(),Collections.singletonList(userApi.getCurrentUser().getUserId()));
         teamUserMapApi.addTeamMember(teamUserMapForm);
         return teamPojo;
     }
@@ -57,7 +55,11 @@ public class TeamFlowApi {
                 ,teamPojo.getCreatedBy()
                 ,userApi.getCurrentUser().getUserId()
                 ,RequestStatus.PENDING);
+        //Checking for existing request/invite for that user and already added in the team
         if(validateTeamRequest(requestDetailPojo)){
+            //Here handling the case when someone get the request to join the team and then if he leaved/removed from the team then again he can make request
+            //because if we add new request then it will be error because we have already on request for that mapping
+            // so in that case we just reopen the old request with new status.
             RequestDetailPojo existingRequestPojo =  requestDetailApi.validateRequestToAddRequest(requestDetailPojo);
             if(existingRequestPojo != null && existingRequestPojo.getRequestStatus() == RequestStatus.PENDING){
                 throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited to join this team");
@@ -66,6 +68,7 @@ public class TeamFlowApi {
                 existingRequestPojo.setRequestStatus(requestDetailPojo.getRequestStatus());
             }
             requestDetailApi.saveAll(Collections.singletonList(existingRequestPojo == null ? requestDetailPojo : existingRequestPojo));
+            //Generating the notification for the team owner
             notificationApi.generateNotification(
                     Collections.singletonList(userApi.isValidUser(teamPojo.getCreatedBy()).getUsername()),
                     NotificationConstant.REQUEST,
@@ -91,7 +94,9 @@ public class TeamFlowApi {
                     ,userPojo.getUserId()
                     ,teamPojo.getCreatedBy()
                     ,RequestStatus.PENDING);
+            //Checking for existing request/invite for that user and already added in the team
             if(validateTeamRequest(requestDetailPojo)){
+                //Refer the teamJoinRequest comment for that
                 RequestDetailPojo existingRequestDetailPojo = requestDetailApi.validateRequestToAddRequest(requestDetailPojo);
                 if(existingRequestDetailPojo == null){
                     requestDetailPojoList.add(requestDetailPojo);
@@ -105,6 +110,7 @@ public class TeamFlowApi {
         }
         if(!requestDetailPojoList.isEmpty()){
             requestDetailApi.saveAll(requestDetailPojoList);
+            //Generating the notification for all the users who got invited in the team
             notificationApi.generateNotification(usernameList, NotificationConstant.INVITE, NotificationConstant.TEAM, teamPojo.getTeamId());
         }else {
             throw new CommonApiException(HttpStatus.BAD_REQUEST,"Already Requested or Invited to join this Team"+ " Or Already Joined the team");
@@ -115,25 +121,19 @@ public class TeamFlowApi {
     public void updateTeamJoinRequestInvite(UpdateRequestForm updateRequestForm) throws CommonApiException {
         RequestDetailPojo requestDetailPojo = validateTeamRequestUpdate(updateRequestForm);
         requestDetailPojo.setRequestStatus(updateRequestForm.getRequestStatus());
-//        List<RequestDetailPojo> requestDetailPojoList = new ArrayList<>();
-//        requestDetailPojoList.add(requestDetailPojo);
-//        requestDetailApi.saveAll(requestDetailPojoList);
         requestDetailApi.saveAll(Collections.singletonList(requestDetailPojo));
-//        List<String > usernameList =new ArrayList<>();
-//        usernameList.add(userApi.isValidUser(requestDetailPojo.getRequestBy()).getUsername());
         NotificationConstant notificationConstant = null;
         if(updateRequestForm.getRequestStatus() == RequestStatus.ACCEPTED){
-//            List<Long> userIds = new ArrayList<>();
             Long userId = null;
+            //Generating the notification data.
             if(requestDetailPojo.getRequestCategory() == RequestCategory.REQUEST){
-//                userIds.add(requestDetailPojo.getRequestBy());
                 userId = requestDetailPojo.getRequestBy();
                 notificationConstant = NotificationConstant.REQUEST_ACCEPTED;
             } else if (requestDetailPojo.getRequestCategory() == RequestCategory.INVITE) {
-//                userIds.add(requestDetailPojo.getRequestFor());
                 userId = requestDetailPojo.getRequestFor();
                 notificationConstant = NotificationConstant.INVITE_ACCEPTED;
             }
+            // Adding the team member in the team
             TeamUserMapForm teamUserMapForm = new TeamUserMapForm(updateRequestForm.getRequestId()
                     ,Collections.singletonList(userId));
             teamUserMapApi.addTeamMember(teamUserMapForm);
@@ -177,6 +177,7 @@ public class TeamFlowApi {
     }
 
     public List<RequestDetailPojo> getAllOpenRequestsForTeam(Long requestId) throws CommonApiException{
+        teamApi.isTeamValid(requestId);
         return requestDetailApi.getAllOpenRequestsForTeam(requestId);
     }
 
