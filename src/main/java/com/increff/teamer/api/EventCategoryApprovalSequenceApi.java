@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EventCategoryApprovalSequenceApi {
     @Autowired
-    EventCategoryApprovalSequenceDao eventCategoryApprovalSequenceDao;
+    private EventCategoryApprovalSequenceDao eventCategoryApprovalSequenceDao;
 
     public EventCategoryApprovalSequencePojo getApprovalDetail(EventCategory eventCategory,Long approvalStage) throws CommonApiException{
         return eventCategoryApprovalSequenceDao.findByEventCategoryAndApprovalStage(eventCategory,approvalStage);

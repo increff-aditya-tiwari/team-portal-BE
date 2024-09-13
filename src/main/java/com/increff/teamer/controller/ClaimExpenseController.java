@@ -27,7 +27,7 @@ import java.util.Optional;
 public class ClaimExpenseController {
 
     @Autowired
-    ClaimExpenseDto claimExpenseDto;
+    private ClaimExpenseDto claimExpenseDto;
 
     @PostMapping(value = "claim/add/{eventId}")
     public ClaimPojo addClaim(@PathVariable("eventId") Long eventId) throws CommonApiException {

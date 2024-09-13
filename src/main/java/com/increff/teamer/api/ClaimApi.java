@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class ClaimApi {
     @Autowired
-    ClaimDao claimDao;
+    private ClaimDao claimDao;
     public void validateClaimToAdd(Long eventId)throws CommonApiException {
         ClaimPojo pendingClaimPojo = claimDao.findByEventIdAndClaimStatus(eventId, RequestStatus.PENDING);
         ClaimPojo approvedClaimPojo = claimDao.findByEventIdAndClaimStatus(eventId,RequestStatus.APPROVED);

@@ -35,21 +35,13 @@ public class UserFlowApi {
     @Autowired
     private JwtUtils jwtUtils;
     @Autowired
-    ConvertUtil convertUtil;
+    private ConvertUtil convertUtil;
     @Autowired
-    UserDao userDao;
+    private AccessApi accessApi;
     @Autowired
-    AccessDao accessDao;
+    private UserApi userApi;
     @Autowired
-    UserAccessMappingDao userAccessMappingDao;
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    @Autowired
-    AccessApi accessApi;
-    @Autowired
-    UserApi userApi;
-    @Autowired
-    WebSocketHandler webSocketHandler;
+    private WebSocketHandler webSocketHandler;
 
     public UserData userLogin(LoginForm loginForm) throws CommonApiException {
         authentication(loginForm.getUsername(),loginForm.getPassword());

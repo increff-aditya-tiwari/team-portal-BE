@@ -21,36 +21,21 @@ import java.util.stream.Collectors;
 public class EventFlowApi {
 
     @Autowired
-    private TeamDao teamDao;
+    private UserApi userApi;
     @Autowired
-    private ConvertUtil convertUtil;
+    private EventApi eventApi;
     @Autowired
-    private EventParticipantDao eventParticipantDao;
+    private TeamApi teamApi;
     @Autowired
-    private UserDao userDao;
+    private EventParticipantApi eventParticipantApi;
     @Autowired
-    private RequestDetailDao requestDetailDao;
+    private RequestDetailApi requestDetailApi;
     @Autowired
-    UserFlowApi userService;
+    private TeamUserMapApi teamUserMapApi;
     @Autowired
-    NotificationFlowApi notificationFlowApi;
-
+    private EventDao eventDao;
     @Autowired
-    UserApi userApi;
-    @Autowired
-    EventApi eventApi;
-    @Autowired
-    TeamApi teamApi;
-    @Autowired
-    EventParticipantApi eventParticipantApi;
-    @Autowired
-    RequestDetailApi requestDetailApi;
-    @Autowired
-    TeamUserMapApi teamUserMapApi;
-    @Autowired
-    EventDao eventDao;
-    @Autowired
-    NotificationApi notificationApi;
+    private NotificationApi notificationApi;
 
     public EventPojo createEvent(EventPojo eventPojo) throws CommonApiException {
 //        eventApi.isValidEvent(eventPojo.getEventId());

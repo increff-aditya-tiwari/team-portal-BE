@@ -22,17 +22,9 @@ import java.util.List;
 public class NotificationFlowApi {
 
     @Autowired
-    NotificationHelper notificationDescription;
+    private UserApi userApi;
     @Autowired
-    NotificationDao notificationDao;
-    @Autowired
-    WebSocketHandler webSocketHandler;
-    @Autowired
-    UserNotificationMappingDao userNotificationMappingDao;
-    @Autowired
-    UserApi userApi;
-    @Autowired
-    NotificationApi notificationApi;
+    private NotificationApi notificationApi;
 
 
     public List<NotificationPojo> getAllNotificationForUser(Long userId) throws CommonApiException {

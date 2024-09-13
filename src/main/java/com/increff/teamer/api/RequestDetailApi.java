@@ -19,7 +19,7 @@ import java.util.Optional;
 public class RequestDetailApi {
 
     @Autowired
-    RequestDetailDao requestDetailDao;
+    private RequestDetailDao requestDetailDao;
 
     public void saveAll(List<RequestDetailPojo> requestDetailPojoList) throws CommonApiException{
         requestDetailDao.saveAll(requestDetailPojoList);

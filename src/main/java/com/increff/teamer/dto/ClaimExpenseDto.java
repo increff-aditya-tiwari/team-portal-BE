@@ -18,11 +18,11 @@ import java.util.List;
 @Service
 public class ClaimExpenseDto {
     @Autowired
-    ExpenseClaimFlowApi expenseClaimFlowApi;
+    private ExpenseClaimFlowApi expenseClaimFlowApi;
     @Autowired
-    ValidationUtil validationUtil;
+    private ValidationUtil validationUtil;
     @Autowired
-    ConvertUtil convertUtil;
+    private ConvertUtil convertUtil;
     public ClaimPojo addClaim(Long eventId) throws CommonApiException{
         return expenseClaimFlowApi.addClaim(eventId);
     }

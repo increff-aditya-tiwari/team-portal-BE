@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
 public class NotificationApi {
 
     @Autowired
-    NotificationHelper notificationHelper;
+    private NotificationHelper notificationHelper;
     @Autowired
-    NotificationDao notificationDao;
+    private NotificationDao notificationDao;
     @Autowired
-    WebSocketHandler webSocketHandler;
+    private WebSocketHandler webSocketHandler;
     @Autowired
-    UserNotificationMappingDao userNotificationMappingDao;
+    private UserNotificationMappingDao userNotificationMappingDao;
 
     public void generateNotification(List<String> usernameList, NotificationConstant notificationType, NotificationConstant notificationRelation, Long notificationRelationId) throws CommonApiException {
         NotificationPojo notificationPojo = new NotificationPojo(notificationRelation

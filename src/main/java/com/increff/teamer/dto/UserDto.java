@@ -19,13 +19,13 @@ import java.util.List;
 public class UserDto {
 
     @Autowired
-    UserFlowApi userFlowApi;
+    private UserFlowApi userFlowApi;
     @Autowired
-    ValidationUtil validationUtil;
+    private ValidationUtil validationUtil;
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
-    ConvertUtil convertUtil;
+    private ConvertUtil convertUtil;
 
     public UserData userLogin(LoginForm loginForm) throws CommonApiException{
         validationUtil.validateForm(loginForm);

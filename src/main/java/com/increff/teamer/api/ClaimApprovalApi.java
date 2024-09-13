@@ -15,7 +15,7 @@ import java.util.Optional;
 @Service
 public class ClaimApprovalApi {
     @Autowired
-    ClaimApprovalDao claimApprovalDao;
+    private ClaimApprovalDao claimApprovalDao;
 
     public void setClaimApproval(ClaimApprovalPojo claimApprovalPojo) throws CommonApiException{
         claimApprovalDao.save(claimApprovalPojo);

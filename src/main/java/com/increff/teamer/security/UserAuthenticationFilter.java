@@ -28,11 +28,11 @@ import java.util.Objects;
 public class UserAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    JwtUtils jwtUtils;
+    private JwtUtils jwtUtils;
     @Autowired
-    UserApi userApi;
+    private UserApi userApi;
     @Autowired
-    AccessApi accessApi;
+    private AccessApi accessApi;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 

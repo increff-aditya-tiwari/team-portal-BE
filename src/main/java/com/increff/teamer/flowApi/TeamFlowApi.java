@@ -23,15 +23,15 @@ public class TeamFlowApi {
     @Autowired
     private ConvertUtil convertUtil;
     @Autowired
-    UserApi userApi;
+    private UserApi userApi;
     @Autowired
-    TeamApi teamApi;
+    private TeamApi teamApi;
     @Autowired
-    TeamUserMapApi teamUserMapApi;
+    private TeamUserMapApi teamUserMapApi;
     @Autowired
-    RequestDetailApi requestDetailApi;
+    private RequestDetailApi requestDetailApi;
     @Autowired
-    NotificationApi notificationApi;
+    private NotificationApi notificationApi;
 
 
 //    private ConcurrentHashMap<RequestStatus,List<RequestStatus>> requestStatusValidation = new ConcurrentHashMap<>();

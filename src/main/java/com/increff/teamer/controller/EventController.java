@@ -24,10 +24,10 @@ import java.util.List;
 @RequestMapping(value = "event")
 public class EventController {
     @Autowired
-    EventDto eventDto;
+    private EventDto eventDto;
 
     @Autowired
-    EventParticipantDto eventParticipantDto;
+    private EventParticipantDto eventParticipantDto;
 
 
     @PostMapping("/create")

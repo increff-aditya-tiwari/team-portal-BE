@@ -5,10 +5,9 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class NotificationHelper {
-
     public String getNotificationDescription(NotificationConstant notificationType, NotificationConstant notificationRelation){
-        String fruit = "Apple";
-        String description = switch (notificationRelation) {
+        String DEFAULT_NOTIFICATION_DESCRIPTION = "You have a Notification";
+        return switch (notificationRelation) {
             case NotificationConstant.TEAM -> switch (notificationType) {
                 case NotificationConstant.REQUEST -> "Someone Requested to Join Your Team";
                 case NotificationConstant.INVITE -> "Someone Invited you to Join the Team";
@@ -17,7 +16,7 @@ public class NotificationHelper {
                 case NotificationConstant.INVITE_REJECTED -> "Your Invite to Join Team is Rejected";
                 case NotificationConstant.INVITE_ACCEPTED -> "Your Invite to Join Team is Accepted";
                 case NotificationConstant.NOTIFY_TEAM -> "Someone Notify you About the Team";
-                default -> "You have a Notification";
+                default -> DEFAULT_NOTIFICATION_DESCRIPTION;
             };
             case NotificationConstant.EVENT -> switch (notificationType) {
                 case NotificationConstant.REQUEST -> "Someone Requested to Join Your Event";
@@ -27,12 +26,10 @@ public class NotificationHelper {
                 case NotificationConstant.INVITE_REJECTED -> "Your Invite to Join Event is Rejected";
                 case NotificationConstant.INVITE_ACCEPTED -> "Your Invite to Join Event is Accepted";
                 case NotificationConstant.NOTIFY_TEAM -> "Someone Notify you About the Team";
-                default -> "You have a Notification";
+                default -> DEFAULT_NOTIFICATION_DESCRIPTION;
             };
             default -> null;
         };
-
-        return description;
     }
 
 }

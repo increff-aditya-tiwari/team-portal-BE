@@ -11,7 +11,7 @@ import java.util.List;
 @Service
 public class NotificationDto {
     @Autowired
-    NotificationFlowApi notificationFlowApi;
+    private NotificationFlowApi notificationFlowApi;
     public List<NotificationPojo> getAllNotification(Long userId) throws CommonApiException{
         return notificationFlowApi.getAllNotificationForUser(userId);
     }

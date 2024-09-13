@@ -26,7 +26,7 @@ import java.util.List;
 public class TeamController {
 
     @Autowired
-    TeamDto teamDto;
+    private TeamDto teamDto;
 
     @PostMapping("/create")
     public TeamPojo createTeam(@RequestBody CreateTeamForm createUserForm) throws CommonApiException {

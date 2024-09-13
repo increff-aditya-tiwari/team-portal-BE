@@ -25,13 +25,11 @@ import java.util.List;
 @RequestMapping(value = "user")
 public class UserController {
 
-    @Autowired
-    UserFlowApi userService;
 
     @Autowired
-    UserDto userDto;
+    private UserDto userDto;
     @Autowired
-    NotificationDto notificationDto;
+    private NotificationDto notificationDto;
 
 
     @PostMapping("/login")

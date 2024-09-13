@@ -19,11 +19,11 @@ import java.util.List;
 @Service
 public class TeamDto {
     @Autowired
-    ConvertUtil convertUtil;
+    private ConvertUtil convertUtil;
     @Autowired
-    TeamFlowApi teamFlowApi;
+    private TeamFlowApi teamFlowApi;
     @Autowired
-    ValidationUtil validationUtil;
+    private ValidationUtil validationUtil;
 
     public TeamPojo createTeam(CreateTeamForm createTeamForm) throws CommonApiException {
         validationUtil.validateForm(createTeamForm);

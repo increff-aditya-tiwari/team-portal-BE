@@ -16,9 +16,9 @@ import java.util.List;
 public class EventParticipantDto {
 
     @Autowired
-    ValidationUtil validationUtil;
+    private ValidationUtil validationUtil;
     @Autowired
-    EventFlowApi eventFlowApi;
+    private EventFlowApi eventFlowApi;
 
 
 

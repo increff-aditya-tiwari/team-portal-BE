@@ -21,9 +21,9 @@ import java.util.List;
 public class UserApi implements UserDetailsService {
 
     @Autowired
-    UserDao userDao;
+    private UserDao userDao;
     @Autowired
-    ConvertUtil convertUtil;
+    private ConvertUtil convertUtil;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserPojo userPojo  = userDao.findByUserName(username);

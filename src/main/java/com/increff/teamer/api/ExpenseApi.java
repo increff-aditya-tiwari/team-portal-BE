@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class ExpenseApi {
     @Autowired
-    NewExpenseDao newExpenseDao;
+    private NewExpenseDao newExpenseDao;
 
     public ExpensePojo setExpense(ExpensePojo expensePojo) throws CommonApiException{
         return newExpenseDao.save(expensePojo);

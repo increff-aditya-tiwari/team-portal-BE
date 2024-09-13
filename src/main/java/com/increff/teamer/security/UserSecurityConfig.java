@@ -24,11 +24,11 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 public class UserSecurityConfig {
 
     @Autowired
-    UserAuthenticationEntryPoint userAuthenticationEntryPoint;
+    private UserAuthenticationEntryPoint userAuthenticationEntryPoint;
     @Autowired
-    UserApi userApi;
+    private UserApi userApi;
     @Autowired
-    UserAuthenticationFilter userAuthenticationFilter;
+    private UserAuthenticationFilter userAuthenticationFilter;
 
 
     @Bean

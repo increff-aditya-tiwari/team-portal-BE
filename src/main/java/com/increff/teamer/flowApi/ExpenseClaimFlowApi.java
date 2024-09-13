@@ -24,34 +24,34 @@ import java.util.Optional;
 public class ExpenseClaimFlowApi {
 
     @Autowired
-    EventDao eventDao;
+    private EventDao eventDao;
     @Autowired
-    UserFlowApi userService;
+    private UserFlowApi userService;
     @Autowired
-    ClaimDao claimDao;
+    private ClaimDao claimDao;
     @Autowired
-    ConvertUtil convertUtil;
+    private ConvertUtil convertUtil;
     @Autowired
-    ExpenseDetailsDao expenseDetailsDao;
+    private ExpenseDetailsDao expenseDetailsDao;
     @Autowired
-    EventCategoryApprovalSequenceDao eventCategoryApprovalSequenceDao;
+    private EventCategoryApprovalSequenceDao eventCategoryApprovalSequenceDao;
     @Autowired
-    ClaimApprovalDao claimApprovalDao;
+    private ClaimApprovalDao claimApprovalDao;
 
     @Autowired
-    NewExpenseDao newExpenseDao;
+    private NewExpenseDao newExpenseDao;
     @Autowired
-    EventApi eventApi;
+    private EventApi eventApi;
     @Autowired
-    ClaimApi claimApi;
+    private ClaimApi claimApi;
     @Autowired
-    UserApi userApi;
+    private UserApi userApi;
     @Autowired
-    EventCategoryApprovalSequenceApi eventCategoryApprovalSequenceApi;
+    private EventCategoryApprovalSequenceApi eventCategoryApprovalSequenceApi;
     @Autowired
-    ClaimApprovalApi claimApprovalApi;
+    private ClaimApprovalApi claimApprovalApi;
     @Autowired
-    ExpenseApi expenseApi;
+    private ExpenseApi expenseApi;
 
 
     @Transactional

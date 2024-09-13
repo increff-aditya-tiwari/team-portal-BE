@@ -24,13 +24,9 @@ import java.util.List;
 @Service
 public class TeamUserMapApi {
     @Autowired
-    UserTeamMappingDao userTeamMappingDao;
+    private UserTeamMappingDao userTeamMappingDao;
     @Autowired
-    TeamDao teamDao;
-    @Autowired
-    UserDao userDao;
-    @Autowired
-    RequestDetailDao requestDetailDao;
+    private UserDao userDao;
 
     public void addTeamMember(TeamUserMapForm teamUserMapForm) throws CommonApiException {
         List<UserTeamMappingPojo> userTeamMappingPojoList = validateAddTeamMember(teamUserMapForm);

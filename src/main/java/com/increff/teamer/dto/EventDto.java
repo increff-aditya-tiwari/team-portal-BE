@@ -18,11 +18,11 @@ import java.util.List;
 public class EventDto {
 
     @Autowired
-    EventFlowApi eventFlowApi;
+    private EventFlowApi eventFlowApi;
     @Autowired
-    ValidationUtil validationUtil;
+    private ValidationUtil validationUtil;
     @Autowired
-    ConvertUtil convertUtil;
+    private ConvertUtil convertUtil;
 
 
     public EventPojo createEvent(CreateEventFrom createEventFrom) throws CommonApiException{
