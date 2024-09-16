@@ -4,9 +4,7 @@ import com.increff.teamer.api.*;
 import com.increff.teamer.dao.*;
 import com.increff.teamer.exception.CommonApiException;
 import com.increff.teamer.model.constant.*;
-import com.increff.teamer.model.data.EventParticipantsData;
-import com.increff.teamer.model.data.ParticipantsInfoData;
-import com.increff.teamer.model.data.UserData;
+import com.increff.teamer.model.data.*;
 import com.increff.teamer.model.form.*;
 import com.increff.teamer.pojo.*;
 import com.increff.teamer.util.ConvertUtil;
@@ -260,14 +258,22 @@ public class EventFlowApi {
     }
 
     public List<RequestDetailPojo> getAllOpenInvitesFromEvent(Long requestId) throws CommonApiException{
-        eventApi.isValidEvent(requestId);
-        return requestDetailApi.getAllOpenInvitesForEvent(requestId);
+        EventPojo eventPojo = eventApi.isValidEvent(requestId);
+        return requestDetailApi.getAllOpenInvitesForEvent(requestId,userApi.getCurrentUser().getUserId(),eventPojo.getEventOrganiser());
     }
 
-    public List<EventPojo> getAllEvent() throws CommonApiException {
-        UserData user = userApi.getCurrentUser();
-        userApi.isValidUser(user.getUserId());
-        return eventApi.findAll();
+    public List<EventData> getAllEvent() throws CommonApiException {
+        Long currentUser = userApi.getCurrentUser().getUserId();
+        List<EventPojo> eventPojoList = eventApi.findAll();
+        List<EventData> eventDataList = new ArrayList<>();
+        for(EventPojo eventPojo: eventPojoList){
+            eventDataList.add(new EventData(eventPojo,
+                    getAllOpenRequestsForEvent(eventPojo.getEventId()),
+                    (!Objects.equals(eventPojo.getEventOrganiser(), currentUser)) ?
+                            getAllOpenInvitesFromEvent(eventPojo.getEventId()):
+                            new ArrayList<>()));
+        }
+        return eventDataList;
     }
 
 

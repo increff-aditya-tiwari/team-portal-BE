@@ -7,6 +7,7 @@ import com.increff.teamer.model.constant.NotificationConstant;
 import com.increff.teamer.model.constant.RequestCategory;
 import com.increff.teamer.model.constant.RequestStatus;
 import com.increff.teamer.model.constant.RequestType;
+import com.increff.teamer.model.data.TeamData;
 import com.increff.teamer.model.data.UserUiData;
 import com.increff.teamer.model.form.*;
 import com.increff.teamer.pojo.*;
@@ -182,7 +183,7 @@ public class TeamFlowApi {
     }
 
 
-    public RequestDetailPojo getAllOpenInvitesForTeam(Long requestId) throws CommonApiException{
+    public List<RequestDetailPojo> getAllOpenInvitesForTeam(Long requestId) throws CommonApiException{
         TeamPojo teamPojo = teamApi.isTeamValid(requestId);
         return requestDetailApi.getAllOpenInvitesForTeam(requestId,userApi.getCurrentUser().getUserId(),teamPojo.getCreatedBy());
 //        return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,RequestStatus.PENDING,RequestCategory.INVITE);
@@ -211,8 +212,18 @@ public class TeamFlowApi {
             teamUserMapApi.delete(userTeamMappingPojo);
         }
     }
-    public List<TeamPojo> getAllTeam() throws CommonApiException{
-        return teamApi.getAllTeam();
+    public List<TeamData> getAllTeamData() throws CommonApiException{
+        Long currentUser = userApi.getCurrentUser().getUserId();
+        List<TeamPojo> teamPojoList = teamApi.getAllTeam();
+        List<TeamData> teamDataList = new ArrayList<>();
+        for(TeamPojo teamPojo: teamPojoList){
+            teamDataList.add(new TeamData(teamPojo,
+                    getAllOpenRequestsForTeam(teamPojo.getTeamId()),
+                    (!Objects.equals(teamPojo.getCreatedBy(), currentUser)) ?
+                            getAllOpenInvitesForTeam(teamPojo.getTeamId()):
+                            new ArrayList<>()));
+        }
+        return teamDataList;
     }
 
     public List<Long> getTeamByUserId(Long userId) throws CommonApiException{
@@ -226,7 +237,7 @@ public class TeamFlowApi {
         return teamIdList;
     }
 
-    public TeamPojo getTeamByEventId(Long teamId) throws CommonApiException{
+    public TeamPojo getTeamByTeamId(Long teamId) throws CommonApiException{
         return teamApi.isTeamValid(teamId);
     }
 }

@@ -2,6 +2,7 @@ package com.increff.teamer.dto;
 
 import com.increff.teamer.exception.CommonApiException;
 import com.increff.teamer.flowApi.EventFlowApi;
+import com.increff.teamer.model.data.EventData;
 import com.increff.teamer.model.data.EventParticipantsData;
 import com.increff.teamer.model.form.CreateEventFrom;
 import com.increff.teamer.model.form.UpdateRequestForm;
@@ -31,7 +32,7 @@ public class EventDto {
         return eventFlowApi.createEvent(eventPojo);
     }
 
-    public List<EventPojo> getAllEvent() throws CommonApiException {
+    public List<EventData> getAllEvent() throws CommonApiException {
         return eventFlowApi.getAllEvent();
     }
 

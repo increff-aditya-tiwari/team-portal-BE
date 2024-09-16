@@ -4,6 +4,7 @@ package com.increff.teamer.controller;
 import com.increff.teamer.dto.EventDto;
 import com.increff.teamer.dto.EventParticipantDto;
 import com.increff.teamer.exception.CommonApiException;
+import com.increff.teamer.model.data.EventData;
 import com.increff.teamer.model.data.EventParticipantsData;
 import com.increff.teamer.model.form.*;
 import com.increff.teamer.pojo.EventPojo;
@@ -36,7 +37,7 @@ public class EventController {
     }
 
     @GetMapping("/get-all")
-    public List<EventPojo> getAllEvents() throws CommonApiException {
+    public List<EventData> getAllEvents() throws CommonApiException {
         return eventDto.getAllEvent();
     }
 

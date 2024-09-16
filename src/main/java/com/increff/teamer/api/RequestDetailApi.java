@@ -32,18 +32,13 @@ public class RequestDetailApi {
     public List<RequestDetailPojo> getAllOpenRequestsForEvent(Long requestId) throws CommonApiException{
         return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId, RequestType.EVENT, RequestStatus.PENDING, RequestCategory.REQUEST);
     }
-
-    public List<RequestDetailPojo> getAllOpenInvitesForEvent(Long requestId) throws CommonApiException{
-        return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId, RequestType.EVENT, RequestStatus.PENDING, RequestCategory.INVITE);
-    }
-    public RequestDetailPojo getAllOpenInvitesForTeam(Long requestId,Long requestFor,Long requestBy) throws CommonApiException{
-        return requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,requestFor,requestBy,RequestStatus.PENDING,RequestCategory.INVITE);
-
-//        return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,RequestStatus.PENDING,RequestCategory.INVITE);
+    public List<RequestDetailPojo> getAllOpenInvitesForTeam(Long requestId,Long requestFor,Long requestBy) throws CommonApiException{
+        RequestDetailPojo requestDetailPojo = requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,requestFor,requestBy,RequestStatus.PENDING,RequestCategory.INVITE);
+        return requestDetailPojo == null ? new ArrayList<>() : Collections.singletonList(requestDetailPojo);
     }
     public List<RequestDetailPojo> getAllOpenInvitesForEvent(Long requestId,Long requestFor,Long requestBy) throws CommonApiException{
-        return Collections.singletonList(requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatusAndRequestCategory(requestId,RequestType.EVENT,requestFor,requestBy,RequestStatus.PENDING,RequestCategory.INVITE));
-//        return requestDetailDao.findAllByRequestIdAndRequestTypeAndRequestStatusAndRequestCategory(requestId,RequestType.TEAM,RequestStatus.PENDING,RequestCategory.INVITE);
+        RequestDetailPojo requestDetailPojo = requestDetailDao.findByRequestIdAndRequestTypeAndRequestForAndRequestByAndRequestStatusAndRequestCategory(requestId,RequestType.EVENT,requestFor,requestBy,RequestStatus.PENDING,RequestCategory.INVITE);
+        return requestDetailPojo == null ? new ArrayList<>() : Collections.singletonList(requestDetailPojo);
     }
 
     public RequestDetailPojo isValidRequest(Long requestDetailId) throws CommonApiException{

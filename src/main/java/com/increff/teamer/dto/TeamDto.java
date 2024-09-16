@@ -2,6 +2,7 @@ package com.increff.teamer.dto;
 
 import com.increff.teamer.exception.CommonApiException;
 import com.increff.teamer.flowApi.TeamFlowApi;
+import com.increff.teamer.model.data.TeamData;
 import com.increff.teamer.model.data.UserUiData;
 import com.increff.teamer.model.form.CreateTeamForm;
 import com.increff.teamer.model.form.DeleteTeamMemberForm;
@@ -31,8 +32,8 @@ public class TeamDto {
         return teamFlowApi.createTeam(teamPojo);
     }
 
-    public List<TeamPojo> getAllTeam() throws CommonApiException{
-        return teamFlowApi.getAllTeam();
+    public List<TeamData> getAllTeamData() throws CommonApiException{
+        return teamFlowApi.getAllTeamData();
     }
 
     public void teamJoinInvite(TeamUserMapForm teamUserMapForm) throws CommonApiException{
@@ -48,7 +49,7 @@ public class TeamDto {
     public List<RequestDetailPojo> getAllOpenRequestsForTeam(Long teamId) throws CommonApiException{
         return teamFlowApi.getAllOpenRequestsForTeam(teamId);
     }
-    public RequestDetailPojo getAllOpenInvitesForTeam(Long teamId) throws CommonApiException{
+    public List<RequestDetailPojo> getAllOpenInvitesForTeam(Long teamId) throws CommonApiException{
         return teamFlowApi.getAllOpenInvitesForTeam(teamId);
     }
 
@@ -70,7 +71,7 @@ public class TeamDto {
         return teamFlowApi.getTeamByUserId(userId);
     }
 
-    public TeamPojo getTeamByEventId(Long teamId) throws CommonApiException{
-        return teamFlowApi.getTeamByEventId(teamId);
+    public TeamPojo getTeamByTeamId(Long teamId) throws CommonApiException{
+        return teamFlowApi.getTeamByTeamId(teamId);
     }
 }
