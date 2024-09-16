@@ -22,13 +22,13 @@ import java.util.List;
 @Service
 public class EventParticipantApi {
     @Autowired
-    EventParticipantDao eventParticipantDao;
+    private EventParticipantDao eventParticipantDao;
     @Autowired
-    RequestDetailDao requestDetailDao;
+    private RequestDetailDao requestDetailDao;
     @Autowired
-    UserDao userDao;
+    private UserDao userDao;
     @Autowired
-    TeamDao teamDao;
+    private TeamDao teamDao;
 
     public Boolean validateEventRequest(RequestDetailPojo requestDetailPojo) throws CommonApiException{
         EventParticipantPojo eventParticipantPojo = null;

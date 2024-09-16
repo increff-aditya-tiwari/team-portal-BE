@@ -3,14 +3,14 @@ package com.increff.teamer.pojo;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "teams",uniqueConstraints = @UniqueConstraint(columnNames = {"teamName"}))
+@Table(name = "teams",uniqueConstraints = @UniqueConstraint(name = "unique_team_name",columnNames = {"teamName"}))
 public class TeamPojo extends AbstractVersionedPojo{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false)
     private Long teamId;
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false)
     private String teamName;
     @Column(nullable = false)
     private Long createdBy;

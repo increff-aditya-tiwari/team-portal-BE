@@ -4,7 +4,8 @@ import com.increff.teamer.model.constant.EventCategory;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "event_category_approval_sequence")
+@Table(name = "event_category_approval_sequence",
+        uniqueConstraints = @UniqueConstraint(name = "unique_event_category_approval",columnNames = {"eventCategory","approvalRequiredBy","approvalStage"}))
 public class EventCategoryApprovalSequencePojo{
 
     @Id

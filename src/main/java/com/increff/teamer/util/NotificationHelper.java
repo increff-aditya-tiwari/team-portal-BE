@@ -28,6 +28,12 @@ public class NotificationHelper {
                 case NotificationConstant.NOTIFY_TEAM -> "Someone Notify you About the Team";
                 default -> DEFAULT_NOTIFICATION_DESCRIPTION;
             };
+            case NotificationConstant.CLAIM -> switch (notificationType) {
+                case NotificationConstant.CLAIM_APPROVAL -> "You have a Pending Claim Approval";
+                case NotificationConstant.CLAIM_REJECTED -> "Your Claim Approval is Rejected";
+                case NotificationConstant.CLAIM_APPROVED -> "YYour Claim Approval is Approved";
+                default -> DEFAULT_NOTIFICATION_DESCRIPTION;
+            };
             default -> null;
         };
     }

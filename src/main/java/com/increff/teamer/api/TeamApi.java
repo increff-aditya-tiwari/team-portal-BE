@@ -16,7 +16,8 @@ import java.util.List;
 public class TeamApi {
 
     @Autowired
-    TeamDao teamDao;
+    private TeamDao teamDao;
+
     public TeamPojo saveTeam(TeamPojo teamPojo) throws CommonApiException{
         validateCreateTeam(teamPojo);
         return teamDao.save(teamPojo);
@@ -26,12 +27,12 @@ public class TeamApi {
         return teamDao.findAll();
     }
 
-    private TeamPojo validateCreateTeam(TeamPojo teamPojo) throws CommonApiException{
+    private void validateCreateTeam(TeamPojo teamPojo) throws CommonApiException{
         TeamPojo existingTeamByName = teamDao.findByTeamName(teamPojo.getTeamName());
+//        System.out.println("this is team name "+teamPojo.getTeamName() + " and this is existing team name " + existingTeamByName);
         if(existingTeamByName != null){
             throw new CommonApiException(HttpStatus.FOUND,"Team With this Name is Already Present");
         }
-        return existingTeamByName;
     }
 
     public TeamPojo isTeamValid(Long teamId) throws CommonApiException{

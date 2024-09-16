@@ -2,6 +2,7 @@ package com.increff.teamer.api;
 
 import com.increff.teamer.dao.NewExpenseDao;
 import com.increff.teamer.exception.CommonApiException;
+import com.increff.teamer.model.form.NewAddExpenseForm;
 import com.increff.teamer.pojo.ExpensePojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -43,5 +44,12 @@ public class ExpenseApi {
 
     public ExpensePojo getExpenseAttachment(Long expenseId) throws CommonApiException{
         return newExpenseDao.findByExpenseId(expenseId);
+    }
+
+    public void validateAddExpense(NewAddExpenseForm newAddExpenseForm) throws CommonApiException{
+        ExpensePojo existingExpensePojo =  newExpenseDao.findByClaimIdAndInvoiceNo(newAddExpenseForm.getClaimId(),newAddExpenseForm.getInvoiceNo());
+        if(existingExpensePojo != null){
+            throw new  CommonApiException(HttpStatus.BAD_REQUEST,"Expense with this invoice No. is Already present in this Claim");
+        }
     }
 }

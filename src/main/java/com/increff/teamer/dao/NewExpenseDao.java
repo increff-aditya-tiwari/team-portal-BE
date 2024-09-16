@@ -8,4 +8,5 @@ import java.util.List;
 public interface NewExpenseDao extends JpaRepository<ExpensePojo,Long> {
     public List<ExpensePojo> findAllByClaimId(Long claimId);
     public ExpensePojo findByExpenseId(Long expenseId);
+    public ExpensePojo findByClaimIdAndInvoiceNo(Long claimId,String invoiceNo);
 }

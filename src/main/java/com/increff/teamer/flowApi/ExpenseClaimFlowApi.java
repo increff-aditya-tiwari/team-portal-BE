@@ -4,6 +4,7 @@ import com.increff.teamer.api.*;
 import com.increff.teamer.dao.*;
 import com.increff.teamer.exception.CommonApiException;
 import com.increff.teamer.model.constant.EventCategory;
+import com.increff.teamer.model.constant.NotificationConstant;
 import com.increff.teamer.model.constant.RequestStatus;
 import com.increff.teamer.model.form.AddExpenseForm;
 import com.increff.teamer.model.form.NewAddExpenseForm;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +54,8 @@ public class ExpenseClaimFlowApi {
     private ClaimApprovalApi claimApprovalApi;
     @Autowired
     private ExpenseApi expenseApi;
+    @Autowired
+    NotificationApi notificationApi;
 
 
     @Transactional
@@ -79,6 +83,12 @@ public class ExpenseClaimFlowApi {
                     ,eventCategoryApprovalSequencePojo.getApprovalStage(),
                     eventCategory);
             claimApprovalApi.setClaimApproval(claimApprovalPojo);
+            notificationApi.generateNotification(
+                    Collections.singletonList(userApi.isValidUser(eventCategoryApprovalSequencePojo.getApprovalRequiredBy()).getUsername()),
+                    NotificationConstant.CLAIM_APPROVAL,
+                    NotificationConstant.CLAIM,
+                    claimId
+            );
         }
     }
 
@@ -86,6 +96,7 @@ public class ExpenseClaimFlowApi {
 
     @Transactional
     public ExpensePojo addNewExpense(NewAddExpenseForm newAddExpenseForm) throws CommonApiException, IOException {
+        expenseApi.validateAddExpense(newAddExpenseForm);
         ExpensePojo expensePojo = convertUtil.convertDataToPojo(newAddExpenseForm, ExpensePojo.class);
         // Convert MultipartFile to byte[] and set it
         System.out.println("this is new expense " + expensePojo.getInvoiceNo() + " and claim " + expensePojo.getClaimId() + " and ex id " + expensePojo.getExpenseId());
@@ -99,6 +110,8 @@ public class ExpenseClaimFlowApi {
 
         return expensePojo;
     }
+
+
 
 
 

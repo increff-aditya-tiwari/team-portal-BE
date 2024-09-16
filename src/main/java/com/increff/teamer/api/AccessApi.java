@@ -18,9 +18,9 @@ import java.util.Set;
 @Service
 public class AccessApi {
     @Autowired
-    AccessDao accessDao;
+    private AccessDao accessDao;
     @Autowired
-    UserAccessMappingDao userAccessMappingDao;
+    private UserAccessMappingDao userAccessMappingDao;
 
     public Set<Authority> getUserAuthority(Long userId) throws CommonApiException {
         List<UserAccessMappingPojo> userAccessMappingPojoList = userAccessMappingDao.findAllByUserId(userId);

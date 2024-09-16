@@ -35,7 +35,7 @@ public class NotificationApi {
                 ,notificationType
                 ,notificationHelper.getNotificationDescription(notificationType,notificationRelation));
         notificationPojo = notificationDao.save(notificationPojo);
-        System.out.println("we are sending request to " + usernameList.get(0));
+//        System.out.println("we are sending request to " + usernameList.getFirst());
         setUserNotificationMapping(usernameList,notificationPojo);
         webSocketHandler.sendMessageToUsers(usernameList,notificationPojo);
     }

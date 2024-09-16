@@ -16,7 +16,7 @@ import java.util.Optional;
 public class EventApi {
 
     @Autowired
-    EventDao eventDao;
+    private EventDao eventDao;
     public List<EventPojo> findAll() throws CommonApiException{
         return eventDao.findAll();
     }
