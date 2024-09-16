@@ -12,5 +12,5 @@ import org.springframework.web.bind.annotation.RestController;
 )
 @RequestMapping(value = "event")
 public class AppAdminController {
-
+    // this is testing for the admin controller
 }
